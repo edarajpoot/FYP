@@ -86,6 +86,7 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
         "contactNumber": contactNumber,
       });
       print("Emergency contact added successfully!");
+      
     } catch (e) {
       print("Error saving emergency contact: $e");
     }

@@ -9,6 +9,61 @@ import 'package:login/screens/signup.dart';
 class DatabaseService {
   final FirebaseFirestore _fire = FirebaseFirestore.instance;
 
+//   Future<String> copyAssetToFile(String assetPath) async {
+//    try {
+//     final directory = await getApplicationDocumentsDirectory();
+//     final filePath = '${directory.path}/${assetPath.split('/').last}';
+    
+//     ByteData byteData = await rootBundle.load(assetPath); // Correct path
+//     final buffer = byteData.buffer.asUint8List();
+//     final file = File(filePath);
+//     await file.writeAsBytes(buffer);
+
+//     return filePath;  // Return the local file path where the asset was copied
+//   } catch (e) {
+//     print("Error copying asset to file: $e");
+//     return ''; // Return empty string if error occurs
+//   }
+// }
+
+
+//   // Save recording path to Firestore
+// Future<void> saveRecordingToFirestore(String assetPath) async {
+//   try {
+//     String localPath = await copyAssetToFile(assetPath);
+
+//     if (localPath.isNotEmpty) {
+//       // Add document to Firestore with local file path
+//       await _fire.collection("Recordings").add({
+//         "fileName": "myRecording.mp3",
+//         "duration": 120,
+//         "localPath": localPath,  // Store local path in Firestore
+//       });
+//       print("Recording saved to Firestore with local path.");
+//     } else {
+//       print("Error: Could not copy file.");
+//     }
+//   } catch (e) {
+//     print("Error saving recording to Firestore: $e");
+//   }
+// }
+
+  Future<void> updateUserProfile(UserModel user) async {
+    try {
+      await _fire.collection('USERS').doc(user.id).update({
+        'name': user.name,
+        'email': user.email,
+        'phoneNo': user.phoneNo,
+        'password':user.password,
+        // Add any other fields you want to update
+      });
+    } catch (e) {
+      print("Error updating user profile: $e");
+      rethrow; // Optionally rethrow or handle the error in a way that suits your app
+    }
+  }
+
+
   // 🔹 Create User
   Future<void> createUser(USER user, String userId) async {
     try {
@@ -31,6 +86,27 @@ class DatabaseService {
   return null;
 }
 
+// Define the method to get all keywords for a user
+  Future<List<KeywordModel>> getAllKeywords(String userId) async {
+    try {
+      // Fetch all documents from the "keywords" collection for the given user
+      QuerySnapshot querySnapshot = await _fire
+          .collection('EmergencyAlertKeyword')  // Adjust the collection name if needed
+          .where('userID', isEqualTo: userId) // Assuming the keywords are stored with the userId
+          .get();
+
+      // Map the query result to KeywordModel objects
+      List<KeywordModel> keywordList = querySnapshot.docs.map((doc) {
+        return KeywordModel.fromFirestore(doc); // Assuming you have a fromFirestore method in your KeywordModel
+      }).toList();
+
+      return keywordList;
+    } catch (e) {
+      print('Error fetching keywords: $e');
+      return []; // Return an empty list if something goes wrong
+    }
+  }
+
 Future<KeywordModel?> getKeywordData(String userId) async {
   // Fetch the document
   var snapshot = await FirebaseFirestore.instance
@@ -51,6 +127,7 @@ Future<KeywordModel?> getKeywordData(String userId) async {
   print("No keyword data found for userID: $userId");
   return null;
 }
+
 
 
 

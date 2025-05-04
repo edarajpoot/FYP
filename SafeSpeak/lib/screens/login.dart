@@ -8,6 +8,7 @@ import 'package:login/screens/backgroungServices.dart';
 import 'package:login/screens/signup.dart';
 import 'package:login/screens/splash.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:login/screens/forgotPassword.dart';
 
 void main() {
   runApp(const MaterialApp(
@@ -24,77 +25,83 @@ class LogInScreen extends StatefulWidget {
 }
 
 class _LogInScreenState extends State<LogInScreen> {
-  bool _rememberMe = false;
   bool _obscureText = true;
   bool _isLoading = false; // Track loading state
   TextEditingController email = TextEditingController();
   TextEditingController password = TextEditingController();
 
   Future<void> signIn() async {
+  setState(() {
+    _isLoading = true; // Show loading indicator
+  });
+
+  try {
+    // Sign in with Firebase
+    UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: email.text,
+      password: password.text,
+    );
+
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null && !user.emailVerified) {
+      await FirebaseAuth.instance.signOut();
+      showErrorDialog(context, "Please verify your email before logging in.");
+      return;
+    }
+
+    String? userId = user?.uid;
+    if (userId == null) {
+      showErrorDialog(context, "User not found. Please try again.");
+      return;
+    }
+
+    // Get user data and contacts
+    await _fetchUserDataAndInitializeService(userId);
+  } catch (e) {
+    showErrorDialog(context, "Login failed: ${e.toString()}");
+  } finally {
     setState(() {
-      _isLoading = true; // Show loading indicator
+      _isLoading = false; // Hide loading indicator
     });
-
-    try {
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email.text,
-        password: password.text,
-      );
-
-      User? user = FirebaseAuth.instance.currentUser;
-
-      if (user != null && !user.emailVerified) {
-        await FirebaseAuth.instance.signOut();
-        showErrorDialog(context, "Please verify your email before logging in.");
-        return;
-      }
-
-      String? userId = user?.uid;
-      if (userId == null) {
-        showErrorDialog(context, "User not found. Please try again.");
-        return;
-      }
-
-      DatabaseService dbService = DatabaseService();
-      UserModel? userData = await dbService.getUserData(userId);
-      KeywordModel? keywordData = await dbService.getKeywordData(userId);
-      List<ContactModel> contacts = [];
-
-      if (keywordData != null) {
-        String? keywordId = keywordData.keywordID;
-        if (keywordId != null) {
-          contacts = await dbService.getContactList(userId, keywordId);
-        }
-      }
-
-      if (userData != null) {
-  if (mounted) {
-    await initializeService(contacts, keywordData!); // ✅ Start service before navigating
-    Navigator.pushReplacement(
-  context,
-  MaterialPageRoute(
-    builder: (context) => MyNavigationBar(
-      user: userData,
-      keywordData: keywordData,
-      contacts: contacts,
-    ),
-  ),
-);
-
   }
-} else {
-        showErrorDialog(context, "User data not found.");
+}
+
+Future<void> _fetchUserDataAndInitializeService(String userId) async {
+  DatabaseService dbService = DatabaseService();
+  
+  UserModel? userData = await dbService.getUserData(userId);
+  List<KeywordModel> keywordDataList = await dbService.getAllKeywords(userId);
+  List<ContactModel> contacts = [];
+
+  if (keywordDataList.isNotEmpty) {
+    for (var keyword in keywordDataList) {
+      String? keywordId = keyword.keywordID;
+      if (keywordId != null) {
+        // Fetch contacts for each keyword
+        var keywordContacts = await dbService.getContactList(userId, keywordId);
+        contacts.addAll(keywordContacts); // Add the contacts to the list
       }
-    } catch (e) {
-      if (mounted) {
-        showErrorDialog(context, "Login failed: ${e.toString()}");
-      }
-    } finally {
-      setState(() {
-        _isLoading = false; // Hide loading indicator after the process
-      });
     }
   }
+
+  if (userData != null && keywordDataList.isNotEmpty) {
+    await initializeService(contacts, keywordDataList);
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MyNavigationBar(
+          user: userData,
+          keywordData: keywordDataList.isNotEmpty ? keywordDataList[0] : null,
+          contacts: contacts,
+        ),
+      ),
+    );
+  } else {
+    showErrorDialog(context, "User data or keywords not found.");
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -197,33 +204,28 @@ class _LogInScreenState extends State<LogInScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 1),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: _rememberMe,
-                        onChanged: (bool? value) {
-                          setState(() {
-                            _rememberMe = value ?? false;
-                          });
-                        },
+              const SizedBox(height: 5),
+              Padding(
+                padding: const EdgeInsets.only(left: 80.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                          builder: (context) => ForgotPasswordScreen()
+                          ),
+                      );                                          
+                      },
+                      child: const Text(
+                        "Forget Password?",
+                        style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
                       ),
-                      const Text("Remember me", style: TextStyle(color: Colors.black)),
-                    ],
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      // Handle Forget Password Tap
-                    },
-                    child: const Text(
-                      "Forget Password?",
-                      style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               const SizedBox(height: 20),
               _isLoading

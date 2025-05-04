@@ -4,6 +4,7 @@ class UserModel {
   final String email;
   final String phoneNo;
   final bool emergencyMode;
+  final String password;
 
   UserModel({
     required this.id,
@@ -11,6 +12,7 @@ class UserModel {
     required this.email,
     required this.phoneNo,
     required this.emergencyMode,
+     this.password = "", 
   });
 
   // Firebase ke document se UserModel banane ka method
@@ -21,18 +23,19 @@ class UserModel {
       email: map['email'] ?? '',
       phoneNo: map['phoneNo'] ?? '',
       emergencyMode: map['emergencyMode'] ?? false,
+      password: map['password'] ?? "",
     );
   }
 
-   // Method to create a copy of UserModel with updated fields
-  UserModel copyWith({String? name, String? email, String? phoneNo, bool? emergencyMode}) {
+  factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      id: this.id,  // Keep id the same
-      name: name ?? this.name,  // Use the new name if provided, else keep the old one
-      email: email ?? this.email,
-      phoneNo: phoneNo ?? this.phoneNo,
-      emergencyMode: emergencyMode ?? this.emergencyMode,
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      email: json['email'] ?? '',
+      phoneNo: json['phoneNo'] ?? '',
+      emergencyMode: json['emergencyMode'] ?? false,
     );
   }
+
 }
 

@@ -1,3 +1,5 @@
+// import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -6,11 +8,28 @@ import 'package:login/model/keywordModel.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'dart:async';
+import 'package:flutter/services.dart';
+// import 'package:path_provider/path_provider.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
+const platform = MethodChannel('com.safespeak/audio');
+
+
+// Method to invoke audio playback on the phone's background during the call
+Future<void> playAudioDuringCall(String filePath) async {
+  try {
+    // Play the audio file using platform-specific method channel
+    await platform.invokeMethod('playAudioDuringCall', {'filePath': filePath});
+    print("Audio is playing during the call.");
+  } catch (e) {
+    print("Error playing audio: $e");
+  }
+}
+
+
 // Initialize the notification plugin
-Future<void> initializeService(List<ContactModel> contacts, KeywordModel keywordModel) async {
+Future<void> initializeService(List<ContactModel> contacts, List<KeywordModel> keywordDataList) async {
   print("🚀 Starting background service...");
   print("Keyword to detect: \${keywordModel.voiceText}");
   print("Total contacts: \${contacts.length}");
@@ -53,9 +72,15 @@ Future<void> initializeService(List<ContactModel> contacts, KeywordModel keyword
   List<Map<String, dynamic>> contactMaps = contacts.map((e) => e.toJson()).toList();
 
   service.invoke('start-listening', {
-    'contacts': contactMaps,
-    'keywordText': keywordModel.voiceText,
-  });
+  'contacts': contactMaps,
+  'keywordText': keywordDataList.map((e) => {
+    'keywordID': e.keywordID,
+    'userID': e.userID,
+    'voiceText': e.voiceText,
+  }).toList(),
+});
+
+
 }
 
 
@@ -74,16 +99,16 @@ bool isCallInProgress = false;
 
 @pragma('vm:entry-point')
 void onStart(ServiceInstance service) async {
+  await Firebase.initializeApp();
   WidgetsFlutterBinding.ensureInitialized();
   print("✅ Background service started.");
 
   bool isListening = false;
 
   service.on('stopService').listen((event) {
-  isListening = false;
-  service.stopSelf();
-});
-
+    isListening = false;
+    service.stopSelf();
+  });
 
   final speech = SpeechToText();
   bool available = await speech.initialize();
@@ -94,64 +119,100 @@ void onStart(ServiceInstance service) async {
   }
 
   List<dynamic> contacts = [];
-  String keyword = "";
+  List<KeywordModel> keywordDataList = [];
+
   service.on('start-listening').listen((event) async {
     if (event != null) {
-      contacts = event['contacts'];
-      keyword = (event['keywordText'] ?? "").toLowerCase();
+      contacts = event['contacts'] ?? [];
 
-      print("🎧 Listening for keyword: \$keyword");
+      // Ensure userID is not null, use an empty string or any default value you prefer
+      // String userID = FirebaseAuth.instance.currentUser?.uid ?? "";
+
+     if (event['keywordText'] != null && event['keywordText'] is List) {
+      var rawList = event['keywordText'] as List;
+      keywordDataList = rawList.map<KeywordModel>((e) {
+        if (e is String) {
+          return KeywordModel(voiceText: e, userID: ""); // fallback if needed
+        } else if (e is Map<String, dynamic>) {
+          return KeywordModel.fromJson(e);
+        } else {
+          throw FormatException("Invalid keywordText item type: ${e.runtimeType}");
+        }
+      }).toList();
+    }
+
+    else { 
+      print("❌ Invalid keywordText format in event.");
+      }
+
+
+      print("🎧 Listening for keyword: ${keywordDataList.map((e) => e.voiceText).join(", ")}");
 
       if (!isListening) {
         isListening = true;
-        await startListeningSession(speech, contacts, keyword, service);
+
+        await startListeningSession(speech, contacts, keywordDataList, service);
       }
     }
   });
 
   // 🔁 Restart listening if it stops unexpectedly every 30 seconds
   Timer.periodic(Duration(seconds: 2), (timer) async {
-    if (!speech.isListening && contacts.isNotEmpty && keyword.isNotEmpty) {
+    if (!speech.isListening && contacts.isNotEmpty && keywordDataList.isNotEmpty) {
       print("🔁 Mic was stopped. Restarting listening...");
-      await startListeningSession(speech, contacts, keyword, service);
+      await startListeningSession(speech, contacts, keywordDataList, service);
     }
   });
 }
 
 
-Future<void> startListeningSession(SpeechToText speech, List<dynamic> contacts, String keyword, ServiceInstance service) async {
+Future<void> startListeningSession(SpeechToText speech, List<dynamic> contacts, List<KeywordModel> keywordDataList, ServiceInstance service) async {
   print("🎤 Starting new listening session...");
 
   speech.listen(
     onResult: (result) async {
       String spoken = result.recognizedWords.toLowerCase();
-      print("🗣️ Heard: \$spoken");
+      print("🗣️ Heard: $spoken");
 
-      if (spoken.contains(keyword) && !isCallInProgress) {
-        print("🚨 Keyword matched! Calling now...");
-        isCallInProgress = true;
+      // Iterate over the list of keywords and match the spoken word
+      for (var keyword in keywordDataList) {
+        if (spoken.contains(keyword.voiceText.toLowerCase()) && !isCallInProgress) {
+          print("🚨 Keyword matched! Calling now...");
+          isCallInProgress = true;
 
-        try {
-          for (var contact in contacts) {
-            await Future.delayed(Duration(seconds: 2));
-            service.invoke('make-call', {
-              'contacts': [contact],
-            });
+          // 🔍 Filter contacts linked to this keyword
+          var matchedContacts = contacts.where((contact) =>
+            contact['keywordID'] == keyword.keywordID
+          ).toList();
 
-            await Future.delayed(Duration(seconds: 5));
+          if (matchedContacts.isEmpty) {
+            print("⚠️ No contacts found for keyword: ${keyword.voiceText}");
+            return;
           }
-        } catch (e) {
-          print("❌ Error during emergency handling: \$e");
-        }
 
-        await Future.delayed(Duration(seconds: 5));
-        isCallInProgress = false;
+          try {
+            for (var contact in contacts) {
+              await Future.delayed(Duration(seconds: 2));
+              service.invoke('make-call', {
+                'contacts': [contact],
+              });
+
+              await Future.delayed(Duration(seconds: 5)); // Allow time for the call to be made
+            }
+          } catch (e) {
+            print("❌ Error during emergency handling: $e");
+          }
+
+          await Future.delayed(Duration(seconds: 5));
+          isCallInProgress = false;
+        }
       }
 
+      // If it's the final result, restart listening without stopping
       if (result.finalResult) {
         print("🛑 Final result received. Restarting listening without stopping...");
         await Future.delayed(Duration(seconds: 1));
-        await startListeningSession(speech, contacts, keyword, service);
+        await startListeningSession(speech, contacts, keywordDataList, service); // Recursively call to restart listening
       }
     },
   );

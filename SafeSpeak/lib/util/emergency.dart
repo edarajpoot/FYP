@@ -1,98 +1,38 @@
-// import 'package:telephony/telephony.dart';
-
-// final Telephony telephony = Telephony.instance;
-
-// Future<void> sendEmergencySms(String number, String message) async {
-//   bool? permissionsGranted = await telephony.requestSmsPermissions;
-
-//   bool? perGranted = await telephony.requestSmsPermissions;
-//   bool? isDefault = await telephony.isSmsCapable;
-
-//   if (isDefault == false || perGranted == false) {
-//     print("❌ SMS not allowed. Please grant permission or set app as default SMS app.");
-//     return;
-//   }
-// if (permissionsGranted ?? false){
-//   try {
-//       await telephony.sendSms(
-//         to: number,
-//         message: message,
-//       );
-//       print("📨 SMS sent to $number");
-//     } catch (e) {
-//       print("❌ Error sending SMS to $number: $e");
-//     }
-// }
-// }
-// import 'package:sms_advanced/sms_advanced.dart';
-// import 'package:permission_handler/permission_handler.dart';
-// import 'package:geolocator/geolocator.dart';
-
-
-
-// Future<Position> getCurrentLocation() async {
-//   bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-//   if (!serviceEnabled) {
-//     await Geolocator.openLocationSettings();
-//     throw Exception("Location services are disabled.");
-//   }
-
-//   LocationPermission permission = await Geolocator.checkPermission();
-//   if (permission == LocationPermission.denied) {
-//     permission = await Geolocator.requestPermission();
-//     if (permission == LocationPermission.denied) {
-//       throw Exception("Location permission denied.");
-//     }
-//   }
-
-//   if (permission == LocationPermission.deniedForever) {
-//     throw Exception("Location permission permanently denied.");
-//   }
-
-//   return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-// }
-
-// Future<bool> requestSmsPermission() async {
-//   var status = await Permission.sms.status;
-//   if (!status.isGranted) {
-//     status = await Permission.sms.request();
-//   }
-//   return status.isGranted;
-// }
-
-
-// void sendSmsMessage(String number, String fallbackText) async {
-//   bool permissionGranted = await requestSmsPermission();
-//   if (!permissionGranted) {
-//     print("❌ SMS permission not granted");
-//     return;
-//   }
-
-//   try {
-//     Position position = await getCurrentLocation();
-
-//     String locationMessage =
-//         "🚨 Emergency! Here's my location: https://maps.google.com/?q=${position.latitude},${position.longitude}";
-
-//     SmsSender sender = SmsSender();
-//     SmsMessage sms = SmsMessage(number, locationMessage);
-
-//     sms.onStateChanged.listen((state) {
-//       print('📨 SMS State: $state');
-//     });
-
-//     sender.sendSms(sms);
-//   } catch (e) {
-//     // If location fails, send fallback text
-//     print("⚠ Location error: $e. Sending fallback message.");
-//     SmsSender sender = SmsSender();
-//     SmsMessage sms = SmsMessage(number, fallbackText);
-//     sender.sendSms(sms);
-// }
-// }
-
+import 'package:location/location.dart' as location;
 import 'package:sms_advanced/sms_advanced.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:permission_handler/permission_handler.dart'; // No prefix needed
+
+Future<location.LocationData> getCurrentLocation() async {
+  print("Location section");
+  location.Location locationService = new location.Location();
+
+  // Check if location services are enabled
+  bool _serviceEnabled;
+  PermissionStatus _permissionGranted; // Use the PermissionStatus from permission_handler
+
+  _serviceEnabled = await locationService.serviceEnabled();
+  if (!_serviceEnabled) {
+    _serviceEnabled = await locationService.requestService();
+    if (!_serviceEnabled) {
+      throw Exception("Location services are disabled.");
+    }
+  }
+
+  _permissionGranted = await Permission.sms.status; // Corrected reference
+  if (_permissionGranted == PermissionStatus.denied) {
+    _permissionGranted = await Permission.sms.request();
+    if (_permissionGranted != PermissionStatus.granted) {
+      throw Exception("Location permission denied.");
+    }
+  }
+
+  if (_permissionGranted == PermissionStatus.permanentlyDenied) {
+    throw Exception("Location permission permanently denied.");
+  }
+
+  // Get the current location
+  return await locationService.getLocation();
+}
 
 Future<bool> requestSmsPermission() async {
   var status = await Permission.sms.status;
@@ -102,20 +42,32 @@ Future<bool> requestSmsPermission() async {
   return status.isGranted;
 }
 
-
-void sendSmsMessage(String number, String message) async {
+void sendSmsMessage(String number, String fallbackText) async {
   bool permissionGranted = await requestSmsPermission();
   if (!permissionGranted) {
     print("❌ SMS permission not granted");
     return;
   }
 
-  SmsSender sender = SmsSender();
-  SmsMessage sms = SmsMessage(number, message);
+  try {
+    location.LocationData locationData = await getCurrentLocation();
 
-  sms.onStateChanged.listen((state) {
-    print('📨 SMS State: $state');
-  });
+    String locationMessage =
+        "🚨 Emergency! Here's my location: https://maps.google.com/?q=${locationData.latitude},${locationData.longitude}";
 
-  sender.sendSms(sms);
+    SmsSender sender = SmsSender();
+    SmsMessage sms = SmsMessage(number, locationMessage);
+
+    sms.onStateChanged.listen((state) {
+      print('📨 SMS State: $state');
+    });
+
+    sender.sendSms(sms);
+  } catch (e) {
+    // If location fails, send fallback text
+    print("⚠ Location error: $e. Sending fallback message.");
+    SmsSender sender = SmsSender();
+    SmsMessage sms = SmsMessage(number, fallbackText);
+    sender.sendSms(sms);
+  }
 }

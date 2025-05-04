@@ -5,6 +5,7 @@ import 'package:login/model/contactModel.dart';
 import 'package:login/model/keywordModel.dart';
 import 'package:login/model/usermodel.dart';
 import 'package:login/screens/home.dart';
+import 'package:login/screens/newKeyword.dart';
 import 'package:login/screens/settings.dart';
 
 class MyNavigationBar extends StatelessWidget {
@@ -68,7 +69,7 @@ class NavigationController extends GetxController {
   }) {
     screens = [
       HomePage(user: user, keywordData: keywordData, contacts: contacts),
-      const Center(child: Text("Search")),
+      AllKeywords(user: user),
       const Center(child: Text("Notifications")),
       ProfileScreen(user: user,),
     ];

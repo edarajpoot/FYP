@@ -19,6 +19,11 @@
     <uses-permission android:name="android.permission.RECEIVE_WAP_PUSH"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+
 
 
 
@@ -26,7 +31,9 @@
     <application
         android:label="login"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:requestLegacyExternalStorage="true"
+        >
         
         <!-- Main Activity -->
         <activity
@@ -57,11 +64,12 @@
 
         <!-- Background service declaration with tools:replace -->
         <service
-            android:name="id.flutter.flutter_background_service.BackgroundService"
-            android:exported="false"
-            android:foregroundServiceType="microphone|location|phoneCall"
-            android:permission="android.permission.FOREGROUND_SERVICE"
-            tools:replace="android:exported"/>
+          android:name="id.flutter.flutter_background_service.BackgroundService"
+          android:exported="false"
+          android:foregroundServiceType="microphone|location|phoneCall"
+          android:permission="android.permission.FOREGROUND_SERVICE"
+          tools:replace="android:exported"/>
+
 
         <uses-library 
             android:name="org.apache.http.legacy" 

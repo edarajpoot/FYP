@@ -32,6 +32,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int qIndex = 0;
+  String userName = '';
 
   final SpeechToText speechToText = SpeechToText();
   var isListening = false;
@@ -70,6 +71,7 @@ Future<void> _requestMicrophonePermission() async {
 
   @override
   void initState() {
+    userName = widget.user.name;
     getRandomQuote();
     _requestMicrophonePermission();
     super.initState();
@@ -78,7 +80,7 @@ Future<void> _requestMicrophonePermission() async {
    if (widget.keywordData != null && widget.contacts.isNotEmpty) {
     print('✅ Sending keyword to background: ${widget.keywordData!.voiceText}');
     print('✅ Contacts to background: ${widget.contacts.length}');
-    initializeService(widget.contacts, widget.keywordData!);
+    initializeService(widget.contacts, [widget.keywordData!]);
   } else {
     print('⚠️ No keyword or contacts provided to service');
   }
@@ -160,11 +162,16 @@ Future<void> _requestMicrophonePermission() async {
   //       ),
   //     ),
       appBar: AppBar(
-        title: Text("Welcome, ${widget.user.name}",
-        style: TextStyle(
-          color: Color.fromRGBO(37, 66, 43, 1),
-          fontWeight: FontWeight.bold,
-        ),)),
+        automaticallyImplyLeading: false,
+        title: Padding(
+          padding: const EdgeInsets.only(left: 25.0),
+          child: Text("Welcome, $userName",
+          style: TextStyle(
+            color: Color.fromRGBO(37, 66, 43, 1),
+            fontWeight: FontWeight.bold,
+            fontSize: 25,
+          ),),
+        )),
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
