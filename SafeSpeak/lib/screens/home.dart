@@ -6,12 +6,14 @@ import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:login/model/contactModel.dart';
 import 'package:login/model/keywordModel.dart';
 import 'package:login/screens/backgroungServices.dart';
+import 'package:login/widgets/Livelocation/LiveLocation.dart';
 import 'package:login/widgets/customCarousel.dart';
 import 'package:login/widgets/customappbar.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:login/model/usermodel.dart';
 import 'package:login/screens/login.dart';
+import 'package:login/widgets/live_safe.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -19,11 +21,13 @@ class HomePage extends StatefulWidget {
   final UserModel user;
   final KeywordModel? keywordData;
   final List<ContactModel> contacts;
+  final Function? onMapFunction;
   const HomePage({
     Key? key, 
     required this.user,
     required this.keywordData,
     required this.contacts,
+    this.onMapFunction,
     }): super(key: key);
 
   @override
@@ -38,9 +42,9 @@ class _HomePageState extends State<HomePage> {
   var isListening = false;
 
 
-//   Future<void> _makeEmergencyCall(String number) async {
-//   await FlutterPhoneDirectCaller.callNumber(number);
-// }
+  Future<void> _makeEmergencyCall(String number) async {
+  await FlutterPhoneDirectCaller.callNumber(number);
+}
 
 
   getRandomQuote() {
@@ -230,33 +234,28 @@ Future<void> _requestMicrophonePermission() async {
                     'subtitle': 'In case of medical emergency',
                     'buttonText': '1122',
                     'icon': Icons.local_hospital,
-                    // 'onPressed': () {
-                    //   print('Calling Ambulance...');
-                    //    FlutterPhoneDirectCaller.callNumber('1122');
-                    // },
+                    'onPressed': () {
+                      _makeEmergencyCall("1122");
+                    },
                   },
                   {
                     'title': 'Fire Brigade',
                     'subtitle': 'In case of fire',
                     'buttonText': '16',
                     'icon': Icons.fire_extinguisher,
-                    // 'onPressed': () {
-                    //   print('Calling Fire Brigade...');
-                    //   FlutterPhoneDirectCaller.callNumber('16');
-
-                    // },
+                    'onPressed': () {
+                      _makeEmergencyCall("16");
+                    },
                   },
                   {
                    'title': 'Police',
                    'subtitle': 'For criminal activity',
                     'buttonText': '15',
                     'icon': Icons.local_police,
-                    // 'onPressed': () {
-                             //   print('Calling Police...');
-                    //   FlutterPhoneDirectCaller.callNumber('15');
-
-                    // },
-                  },
+                    'onPressed': () {
+                      _makeEmergencyCall("15");
+                    },
+                  }
                 ].map((item) {
                   return Builder(
                     builder: (BuildContext context) {
@@ -330,6 +329,7 @@ Future<void> _requestMicrophonePermission() async {
              ),
            ),
            const SizedBox(height: 10),
+
             Padding(
               padding: const EdgeInsets.only(left: 18.0),
               child: Align(
@@ -344,71 +344,13 @@ Future<void> _requestMicrophonePermission() async {
                ),
               ),
             ),
-const SizedBox(height: 10),
-CarouselSlider(
-  options: CarouselOptions(
-    height: 130,
-    enlargeCenterPage: false,
-    viewportFraction: 0.45, // Adjust this for size & spacing
-    scrollDirection: Axis.horizontal, // 👈 Important
-  ),
-  items: [
-    {
-      'title': 'Police Station',
-      'icon': Icons.local_police,
-    },
-    {
-      'title': 'Bus Stop',
-      'icon': Icons.directions_bus,
-    },
-    {
-      'title': 'Pharmacy',
-      'icon': Icons.local_pharmacy,
-    },
-    {
-      'title': 'Hospital',
-      'icon': Icons.local_hospital,
-    },
-  ].map((place) {
-    return Builder(
-      builder: (BuildContext context) {
-        return Container(
-          width: MediaQuery.of(context).size.width * 0.4, // Set width
-          margin: const EdgeInsets.symmetric(horizontal: 4,), // Spacing
-          decoration: BoxDecoration(
-            color: const Color.fromRGBO(230, 240, 234, 1),
-            borderRadius: BorderRadius.circular(15),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 4,
-                offset: Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(place['icon'] as IconData, size: 40, color: Color.fromRGBO(37, 66, 43, 1)),
-              const SizedBox(height: 10),
-              Text(
-                place['title'] as String,
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Color.fromRGBO(37, 66, 43, 1),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }).toList(),
-),
+            
+            const SizedBox(height: 10),
 
-const SizedBox(height: 10),
+            LiveSafe(),
+
+            const SizedBox(height: 10),
+
             Padding(
               padding: const EdgeInsets.only(left: 18.0),
               child: Align(
@@ -423,55 +365,12 @@ const SizedBox(height: 10),
                ),
               ),
             ),
-const SizedBox(height: 10),
-Padding(
-  padding: const EdgeInsets.all(16.0), // Padding around the container
-  child: Container(
-    width: MediaQuery.of(context).size.width * 0.8,
-    height: 180, // Container width adjustment
-    padding: const EdgeInsets.all(16.0), // Padding inside the container
-    decoration: BoxDecoration(
-      color: Colors.white, // Background color
-      borderRadius: BorderRadius.circular(20), // Rounded corners
-      boxShadow: [
-        BoxShadow(
-          color: Colors.black12,
-          blurRadius: 8,
-          offset: Offset(0, 4), // Shadow position
-        ),
-      ],
-    ),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.center, // Center content horizontally
-      children: [
-        // Left side: Heading text
-        Expanded(
-          flex: 3, // Adjust flex as needed
-          child: Text(
-            'Send Location', // Heading text
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Color.fromRGBO(37, 66, 43, 1), // Custom color
-            ),
-          ),
-        ),
-        // Right side: Image
-        Expanded(
-          flex: 2, // Adjust flex to control image size
-          child: Image.asset(
-            'assets/images/location.png', // Replace with your image path
-            height: 100, // Image height
-            width: 100, // Image width
-            fit: BoxFit.cover, // Image fitting
-          ),
-        ),
-      ],
-    ),
-  ),
-)
 
+            const SizedBox(height: 10),
 
+            Livelocation(),
+
+            const SizedBox(height: 10),
           ],
         ),
       ),

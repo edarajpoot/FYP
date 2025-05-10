@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/state_manager.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:login/model/contactModel.dart';
 import 'package:login/model/keywordModel.dart';
 import 'package:login/model/usermodel.dart';
@@ -12,12 +12,13 @@ class MyNavigationBar extends StatelessWidget {
   final UserModel user;
   final KeywordModel? keywordData;
   final List<ContactModel> contacts;
+
   const MyNavigationBar({
-    Key? key, 
+    Key? key,
     required this.user,
     required this.keywordData,
     required this.contacts,
-    }): super(key: key);
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -26,34 +27,46 @@ class MyNavigationBar extends StatelessWidget {
       keywordData: keywordData,
       contacts: contacts,
     ));
+
     return Scaffold(
+      extendBody: true,
       bottomNavigationBar: Obx(
-        () => NavigationBar(
-          height: 80,
-          elevation: 0,
-          selectedIndex: controller.selectedIndex.value,
-          onDestinationSelected: (index) => controller.selectedIndex.value = index,
-            destinations: const [
-            NavigationDestination(
-              icon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.search),
-              label: 'Search',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.history),
-              label: 'History',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.settings),
-              label: 'Settings',
-            ),
-          ],
-        ),
+  () => CurvedNavigationBar(
+    index: controller.selectedIndex.value,
+    height: 60.0,
+    backgroundColor: Colors.transparent,
+    color: Color.fromRGBO(230, 240, 234, 1),
+    buttonBackgroundColor: Color.fromRGBO(37, 66, 43, 1),
+    animationDuration: Duration(milliseconds: 400),
+    onTap: (index) {
+      controller.selectedIndex.value = index;
+    },
+    items: [
+      Icon(
+        Icons.home,
+        size: 30,
+        color: controller.selectedIndex.value == 0 ? Colors.white : const Color.fromRGBO(37, 66, 43, 1),
       ),
-      body: Obx(()=> controller.screens[controller.selectedIndex.value]),
+      Icon(
+        Icons.search,
+        size: 30,
+        color: controller.selectedIndex.value == 1 ? Colors.white : const Color.fromRGBO(37, 66, 43, 1),
+      ),
+      Icon(
+        Icons.history,
+        size: 30,
+        color: controller.selectedIndex.value == 2 ? Colors.white : const Color.fromRGBO(37, 66, 43, 1),
+      ),
+      Icon(
+        Icons.settings,
+        size: 30,
+        color: controller.selectedIndex.value == 3 ? Colors.white : const Color.fromRGBO(37, 66, 43, 1),
+      ),
+    ],
+  ),
+),
+
+      body: Obx(() => controller.screens[controller.selectedIndex.value]),
     );
   }
 }
@@ -70,9 +83,8 @@ class NavigationController extends GetxController {
     screens = [
       HomePage(user: user, keywordData: keywordData, contacts: contacts),
       AllKeywords(user: user),
-      const Center(child: Text("Notifications")),
-      ProfileScreen(user: user,),
+      const Center(child: Text("History")),
+      ProfileScreen(user: user),
     ];
   }
 }
-

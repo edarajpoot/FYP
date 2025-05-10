@@ -64,7 +64,9 @@ dependencies:
   # path_provider: ^2.1.2
   # audioplayers: ^6.4.0
   just_audio: ^0.9.36
+  fluttertoast: ^8.2.12
   location: ^8.0.0
+  curved_navigation_bar: ^1.0.6
   
 dev_dependencies:
   flutter_test:

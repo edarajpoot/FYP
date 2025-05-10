@@ -1,39 +1,8 @@
 import 'package:location/location.dart' as location;
 import 'package:sms_advanced/sms_advanced.dart';
-import 'package:permission_handler/permission_handler.dart'; // No prefix needed
+import 'package:permission_handler/permission_handler.dart';
 
-Future<location.LocationData> getCurrentLocation() async {
-  print("Location section");
-  location.Location locationService = new location.Location();
-
-  // Check if location services are enabled
-  bool _serviceEnabled;
-  PermissionStatus _permissionGranted; // Use the PermissionStatus from permission_handler
-
-  _serviceEnabled = await locationService.serviceEnabled();
-  if (!_serviceEnabled) {
-    _serviceEnabled = await locationService.requestService();
-    if (!_serviceEnabled) {
-      throw Exception("Location services are disabled.");
-    }
-  }
-
-  _permissionGranted = await Permission.sms.status; // Corrected reference
-  if (_permissionGranted == PermissionStatus.denied) {
-    _permissionGranted = await Permission.sms.request();
-    if (_permissionGranted != PermissionStatus.granted) {
-      throw Exception("Location permission denied.");
-    }
-  }
-
-  if (_permissionGranted == PermissionStatus.permanentlyDenied) {
-    throw Exception("Location permission permanently denied.");
-  }
-
-  // Get the current location
-  return await locationService.getLocation();
-}
-
+// Request SMS permission
 Future<bool> requestSmsPermission() async {
   var status = await Permission.sms.status;
   if (!status.isGranted) {
@@ -42,32 +11,69 @@ Future<bool> requestSmsPermission() async {
   return status.isGranted;
 }
 
-void sendSmsMessage(String number, String fallbackText) async {
-  bool permissionGranted = await requestSmsPermission();
+// Request location permission
+Future<bool> requestLocationPermission() async {
+  var status = await Permission.location.status;
+  if (status.isDenied) {
+    status = await Permission.location.request();
+  }
+  if (status.isPermanentlyDenied) {
+    throw Exception("Location permission permanently denied.");
+  }
+  return status.isGranted;
+}
+
+// Get current location
+Future<location.LocationData> getCurrentLocation() async {
+  print("📍 Getting location...");
+  location.Location locationService = location.Location();
+
+  // Ensure location services are enabled
+  bool serviceEnabled = await locationService.serviceEnabled();
+  if (!serviceEnabled) {
+    serviceEnabled = await locationService.requestService();
+    if (!serviceEnabled) {
+      throw Exception("Location services are disabled.");
+    }
+  }
+
+  // Check and request location permission
+  bool permissionGranted = await requestLocationPermission();
   if (!permissionGranted) {
+    throw Exception("Location permission not granted.");
+  }
+
+  // Get the current location
+  return await locationService.getLocation();
+}
+
+// Send SMS with location or fallback
+void sendSmsMessage(String number, String fallbackText) async {
+  bool smsPermissionGranted = await requestSmsPermission();
+  if (!smsPermissionGranted) {
     print("❌ SMS permission not granted");
     return;
   }
+  
 
-  try {
-    location.LocationData locationData = await getCurrentLocation();
+  // try {
+  //   location.LocationData locationData = await getCurrentLocation();
 
-    String locationMessage =
-        "🚨 Emergency! Here's my location: https://maps.google.com/?q=${locationData.latitude},${locationData.longitude}";
+  //   String locationMessage =
+  //       "🚨 Emergency! Here's my location: https://maps.google.com/?q=${locationData.latitude},${locationData.longitude}";
 
-    SmsSender sender = SmsSender();
-    SmsMessage sms = SmsMessage(number, locationMessage);
+  //   SmsSender sender = SmsSender();
+  //   SmsMessage sms = SmsMessage(number, locationMessage);
 
-    sms.onStateChanged.listen((state) {
-      print('📨 SMS State: $state');
-    });
+  //   sms.onStateChanged.listen((state) {
+  //     print('📨 SMS State: $state');
+  //   });
 
-    sender.sendSms(sms);
-  } catch (e) {
-    // If location fails, send fallback text
-    print("⚠ Location error: $e. Sending fallback message.");
+  //   sender.sendSms(sms);
+  // } catch (e) {
+    // print("⚠ Location error: $e. Sending fallback message.");
     SmsSender sender = SmsSender();
     SmsMessage sms = SmsMessage(number, fallbackText);
     sender.sendSms(sms);
-  }
+  // }
 }
