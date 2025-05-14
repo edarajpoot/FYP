@@ -11,7 +11,7 @@ List sweetSayings = [
 ];
 
 List<String> articalTitle = [
-  "Pakistani women are inspiring country",
+  "You Desrve to shine",
   "We have to end voilence",
   "Be a change",
   "You are Strong",

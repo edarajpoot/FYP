@@ -171,29 +171,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       }
                     }
                   }
-
                   )
                 ],
+                
               ),
+              
             ),
             // Log Out Button
-            ElevatedButton(
-              onPressed: () {
-                signout();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromRGBO(37, 66, 43, 1), 
-                foregroundColor: Colors.white,                
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 70),
+              child: ElevatedButton(
+                onPressed: () {
+                  signout();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color.fromRGBO(37, 66, 43, 1), 
+                  foregroundColor: Colors.white,                
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  minimumSize: Size(double.infinity, 50),
                 ),
-                minimumSize: Size(double.infinity, 50),
-              ),
-              child: Text(
-                "Log Out",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+                child: Text(
+                  "Log Out",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),

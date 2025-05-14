@@ -28,7 +28,7 @@ void main() async {
 
         if (contactNumber.isNotEmpty) {
           print("Sending Message from MAIN isolate: $contactNumber");
-          sendSmsMessage(contactNumber, "🚨 This is an emergency! Please help.");
+          sendSmsWithLocation(contactNumber, "🚨 This is an emergency! Please help.");
 
           print("📞 Calling from MAIN isolate: $contactNumber");
           await FlutterPhoneDirectCaller.callNumber(contactNumber);

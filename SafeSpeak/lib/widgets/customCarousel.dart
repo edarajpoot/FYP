@@ -39,12 +39,12 @@ class CustomCarousel extends StatelessWidget {
                 ])
               ),
               child: Align(
-                alignment: Alignment.bottomLeft,
+                alignment: Alignment.bottomCenter,
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 8,left: 8),
                   child: Text(articalTitle[index],
                   style: TextStyle(fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: Color.fromRGBO(230, 240, 234, 1),
                   fontSize: MediaQuery.of(context).size.width*0.05,),
                   ),
                 ),

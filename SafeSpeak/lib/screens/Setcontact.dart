@@ -98,7 +98,10 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Add Emergency Contact")),
+      appBar: AppBar(title: const Text("Add Emergency Contact",
+      style: TextStyle(
+        color: Color.fromRGBO(37, 66, 43, 1),
+      ),)),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -116,7 +119,21 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: addEmergencyContact,
-              child: const Text("Save Contact"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(37, 66, 43, 1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 12),
+              ),
+              child: const Text(
+                'Save Contact',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -138,7 +155,22 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                   });
                 }
               },
-              child: const Text("Add from Phone"),
+
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromRGBO(37, 66, 43, 1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 12),
+              ),
+              child: const Text(
+                'Add from Phone',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
             ),
 
             ElevatedButton(
@@ -149,11 +181,20 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                   );
               },
               style: ElevatedButton.styleFrom(
-                shape: const CircleBorder(),
-                padding: const EdgeInsets.all(15),
-                backgroundColor: const Color.fromRGBO(37, 66, 43, 1), // Button color
+                backgroundColor: const Color.fromRGBO(37, 66, 43, 1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 12),
               ),
-              child: const Text("Next"),
+              child: const Text(
+                'Next',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         ),

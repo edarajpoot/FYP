@@ -19,7 +19,7 @@ class CustomAppBar extends StatelessWidget {
         padding: const EdgeInsets.all(14.0), // Optional: Add some padding for the text
         child: Text(
           sweetSayings[quoteIndex ?? 0], // Default to 0 if quoteIndex is null
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.normal, color: Color.fromRGBO(37, 66, 43, 0.8)),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Color.fromRGBO(37, 66, 43, 0.8)),
         ),
       ),
     );

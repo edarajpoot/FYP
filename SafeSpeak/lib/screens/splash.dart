@@ -3,42 +3,6 @@ import 'package:login/screens/onboarding.dart';
 
 class SplashScreen extends StatelessWidget {
 
-//   Future<void> initializeService() async {
-//   final service = FlutterBackgroundService();
-
-//   // Configure background service for both Android and iOS
-//   await service.configure(
-//     androidConfiguration: AndroidConfiguration(
-//       onStart: onStart, // onStart now returns FutureOr<bool>
-//       isForegroundMode: true, // Run as a foreground service (required for long-running tasks)
-//     ),
-//     iosConfiguration: IosConfiguration(
-//       onBackground: onStart, // onStart now returns FutureOr<bool> for iOS as well
-//       autoStart: true, // Automatically start the service on iOS
-//       isForegroundMode: true, // Run in foreground on iOS as well
-//     ),
-//   );
-
-//   service.start(); // Start the background service
-// }
-
-
-//   FutureOr<bool> onStart(ServiceInstance service) async {
-//   print("Background service started!");
-
-//   // Here you can perform any asynchronous tasks (like checking permissions, etc.)
-//   // The function should return `true` if the service starts successfully, or `false` if it fails.
-
-//   // Example: Perform some task and return true or false based on the result
-//   try {
-//     service.sendData({"message": "Service is running"});
-//     return true;  // Indicating that the service started successfully
-//   } catch (e) {
-//     print("Error starting service: $e");
-//     return false;  // Indicating that there was an issue starting the service
-//   }
-// }
-
   const SplashScreen({super.key});
 
   @override
@@ -80,7 +44,7 @@ class SplashScreen extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey[700],
+                color: Color.fromRGBO(37, 66, 43, 0.8),
                 height: 1.5,
               ),
             ),

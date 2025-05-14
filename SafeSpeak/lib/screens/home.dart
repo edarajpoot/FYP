@@ -1,11 +1,9 @@
 import 'dart:math';
-
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
-import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:login/model/contactModel.dart';
 import 'package:login/model/keywordModel.dart';
 import 'package:login/screens/backgroungServices.dart';
+import 'package:login/widgets/Emergnecywidget.dart';
 import 'package:login/widgets/Livelocation/LiveLocation.dart';
 import 'package:login/widgets/customCarousel.dart';
 import 'package:login/widgets/customappbar.dart';
@@ -41,16 +39,10 @@ class _HomePageState extends State<HomePage> {
   final SpeechToText speechToText = SpeechToText();
   var isListening = false;
 
-
-  Future<void> _makeEmergencyCall(String number) async {
-  await FlutterPhoneDirectCaller.callNumber(number);
-}
-
-
   getRandomQuote() {
     Random random = Random();
     setState(() {
-      qIndex = random.nextInt(6);
+      qIndex = random.nextInt(8);
     });
   }
 
@@ -177,6 +169,7 @@ Future<void> _requestMicrophonePermission() async {
           ),),
         )),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 80),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -219,115 +212,11 @@ Future<void> _requestMicrophonePermission() async {
                ),
               ),
             ),
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: CarouselSlider(
-                options: CarouselOptions(
-                  height: 180,
-                  enlargeCenterPage: true,
-                  autoPlay: false,
-                ),
-                items: [
-                  {
-                    'title': 'Ambulance',
-                    'subtitle': 'In case of medical emergency',
-                    'buttonText': '1122',
-                    'icon': Icons.local_hospital,
-                    'onPressed': () {
-                      _makeEmergencyCall("1122");
-                    },
-                  },
-                  {
-                    'title': 'Fire Brigade',
-                    'subtitle': 'In case of fire',
-                    'buttonText': '16',
-                    'icon': Icons.fire_extinguisher,
-                    'onPressed': () {
-                      _makeEmergencyCall("16");
-                    },
-                  },
-                  {
-                   'title': 'Police',
-                   'subtitle': 'For criminal activity',
-                    'buttonText': '15',
-                    'icon': Icons.local_police,
-                    'onPressed': () {
-                      _makeEmergencyCall("15");
-                    },
-                  }
-                ].map((item) {
-                  return Builder(
-                    builder: (BuildContext context) {
-                      return Container(
-                        width: MediaQuery.of(context).size.width * 0.9,
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: const Color.fromRGBO(37, 66, 43, 1),
-                          borderRadius: BorderRadius.circular(30),
-                     ),
-                     child: Column(
-                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                       crossAxisAlignment: CrossAxisAlignment.start,
-                       children: [
-                         Icon(item['icon'] as IconData? ?? Icons.help_outline, color: Colors.white, size: 30),
-                         Column(
-                           crossAxisAlignment: CrossAxisAlignment.start,
-                           children: [
-                             Text(
-                               (item['title'] as String?) ?? 'Unknown Title',
-                                style: const TextStyle(
-                                 color: Colors.white,
-                                 fontSize: 18,
-                                 fontWeight: FontWeight.bold,
-                               ),
-                             ),
-                             const SizedBox(height: 4),
-                             Text(
-                               (item['subtitle'] as String?) ?? 'No subtitle available',
-                              style: const TextStyle(color: Colors.white70),
-                            ),
-                          ],
-                        ),
-                        Align(
-                          alignment: Alignment.bottomRight,
-                          child: ElevatedButton(
-                         style: ElevatedButton.styleFrom(
-                           backgroundColor: Colors.white,
-                           foregroundColor: const Color.fromRGBO(37, 66, 43, 1),
-                           shape: RoundedRectangleBorder(
-                             borderRadius: BorderRadius.circular(8),
-                           ),
-                         ),
-                         onPressed: () async {
-                           var status = await Permission.phone.status;
-                           if (!status.isGranted) {
-                             status = await Permission.phone.request();
-                           }
 
-                           if (status.isGranted) {
-                             String number = item['buttonText'] as String;
-                             print('📞 Calling $number...');
-                             await FlutterPhoneDirectCaller.callNumber(number);
-                           } else {
-                                   print('❌ Phone permission not granted');
-                                   ScaffoldMessenger.of(context).showSnackBar(
-                                     SnackBar(content: Text('Phone permission is required to make a call')),
-                                   );
-                                 }
-                               },
-                               child: Text(item['buttonText'] as String), // ✅ Add this line
-                                  ),
-                  
-                           ),
-                         ],
-                       ),
-                     );
-                   },
-                 );
-               }).toList(),
-             ),
-           ),
+            const SizedBox(height: 10),
+
+            Emergnecywidget(),
+          
            const SizedBox(height: 10),
 
             Padding(

@@ -32,7 +32,7 @@ class OnboardingScreen extends StatelessWidget {
                   },
                 ),),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 85),
               // Illustration
               Container(
                 width: 150,

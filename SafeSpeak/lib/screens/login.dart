@@ -129,7 +129,7 @@ Future<void> _fetchUserDataAndInitializeService(String userId) async {
                   ),
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 60),
               Container(
                 width: 150,
                 height: 150,
@@ -205,28 +205,30 @@ Future<void> _fetchUserDataAndInitializeService(String userId) async {
                 ),
               ),
               const SizedBox(height: 5),
-              Padding(
-                padding: const EdgeInsets.only(left: 80.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                          builder: (context) => ForgotPasswordScreen()
-                          ),
-                      );                                          
-                      },
-                      child: const Text(
-                        "Forget Password?",
-                        style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ForgotPasswordScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      "Forget Password?",
+                      style: TextStyle(
+                        color: Color.fromRGBO(37, 66, 43, 0.8),
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
+
               const SizedBox(height: 20),
               _isLoading
                   ? const CircularProgressIndicator() // Show progress indicator while logging in
@@ -244,7 +246,7 @@ Future<void> _fetchUserDataAndInitializeService(String userId) async {
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                       ),
                     ),
-              const SizedBox(height: 3),
+              const SizedBox(height: 5),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

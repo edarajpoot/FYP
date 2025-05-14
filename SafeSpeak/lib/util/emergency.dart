@@ -48,32 +48,45 @@ Future<location.LocationData> getCurrentLocation() async {
 }
 
 // Send SMS with location or fallback
-void sendSmsMessage(String number, String fallbackText) async {
+void sendSmsWithLocation(String number, String fallbackText) async {
   bool smsPermissionGranted = await requestSmsPermission();
   if (!smsPermissionGranted) {
     print("❌ SMS permission not granted");
     return;
   }
-  
 
-  // try {
-  //   location.LocationData locationData = await getCurrentLocation();
+  try {
+    location.LocationData locationData = await getCurrentLocation();
 
-  //   String locationMessage =
-  //       "🚨 Emergency! Here's my location: https://maps.google.com/?q=${locationData.latitude},${locationData.longitude}";
+    String locationMessage =
+        "There's an Emergency! Please Help. Here's my location: https://maps.google.com/?q=${locationData.latitude},${locationData.longitude}";
 
-  //   SmsSender sender = SmsSender();
-  //   SmsMessage sms = SmsMessage(number, locationMessage);
+    // Split manually into 160-char parts
+    List<String> parts = _splitMessage(locationMessage);
 
-  //   sms.onStateChanged.listen((state) {
-  //     print('📨 SMS State: $state');
-  //   });
-
-  //   sender.sendSms(sms);
-  // } catch (e) {
-    // print("⚠ Location error: $e. Sending fallback message.");
+    SmsSender sender = SmsSender();
+    for (String part in parts) {
+      SmsMessage sms = SmsMessage(number, part);
+      sms.onStateChanged.listen((state) {
+        print('📨 SMS State: $state');
+      });
+      sender.sendSms(sms);
+    }
+  } catch (e) {
+    print("⚠ Location error: $e. Sending fallback message.");
     SmsSender sender = SmsSender();
     SmsMessage sms = SmsMessage(number, fallbackText);
     sender.sendSms(sms);
-  // }
+  }
 }
+
+List<String> _splitMessage(String message, {int partLength = 160}) {
+  List<String> parts = [];
+  for (int i = 0; i < message.length; i += partLength) {
+    parts.add(
+      message.substring(i, i + partLength > message.length ? message.length : i + partLength),
+    );
+  }
+  return parts;
+}
+

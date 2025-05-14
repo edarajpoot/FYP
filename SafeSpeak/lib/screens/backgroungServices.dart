@@ -1,10 +1,12 @@
 // import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:login/model/contactModel.dart';
 import 'package:login/model/keywordModel.dart';
+import 'package:login/screens/location.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 import 'dart:async';
@@ -39,10 +41,12 @@ Future<void> initializeService(List<ContactModel> contacts, List<KeywordModel> k
   await Permission.phone.request();
   await Permission.sms.request();
   await Permission.ignoreBatteryOptimizations.request(); // 🔋 Battery optimization ignore
+  await Permission.location.request();
 
   PermissionStatus microphoneStatus = await Permission.microphone.status;
   PermissionStatus phoneStatus = await Permission.phone.status;
   PermissionStatus batteryOptStatus = await Permission.ignoreBatteryOptimizations.status;
+  // PermissionStatus locationStatus = await Permission.location.status;
 
   if (microphoneStatus.isGranted && phoneStatus.isGranted && batteryOptStatus.isGranted) {
     print("✅ All required permissions granted.");
@@ -78,9 +82,10 @@ Future<void> initializeService(List<ContactModel> contacts, List<KeywordModel> k
     'userID': e.userID,
     'voiceText': e.voiceText,
   }).toList(),
-});
+  });
 
-
+  final String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+  startLocationUpdates(currentUserId);
 }
 
 
@@ -109,6 +114,7 @@ void onStart(ServiceInstance service) async {
     isListening = false;
     service.stopSelf();
   });
+  
 
   final speech = SpeechToText();
   bool available = await speech.initialize();
