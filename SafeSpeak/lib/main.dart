@@ -5,6 +5,7 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+import 'package:login/screens/backgroungServices.dart';
 import 'package:login/screens/splash.dart';
 import 'package:login/util/emergency.dart';
 import 'firebase_options.dart';
@@ -33,8 +34,8 @@ void main() async {
           print("📞 Calling from MAIN isolate: $contactNumber");
           await FlutterPhoneDirectCaller.callNumber(contactNumber);
           
-          //  // Play Audio After Call is initiated
-          // await platform.invokeMethod('playAudioDuringCall', {'filePath': 'assets/audio/recording.mp3'});
+           // Play Audio After Call is initiated
+          await platform.invokeMethod('playAudioDuringCall', {'filePath': 'assets/audio/recording.mp3'});
 
           await Future.delayed(Duration(seconds: 5));
         }

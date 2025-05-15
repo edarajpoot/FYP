@@ -23,6 +23,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+    <uses-permission android:name="android.permission.BLUETOOTH" />
 
 
 
@@ -64,31 +65,18 @@
 
         <!-- Background service declaration with tools:replace -->
         <service
-          android:name="id.flutter.flutter_background_service.BackgroundService"
-          android:exported="false"
-          android:foregroundServiceType="microphone|location|phoneCall"
-          android:permission="android.permission.FOREGROUND_SERVICE"
-          tools:replace="android:exported"/>
+            android:name="id.flutter.flutter_background_service.BackgroundService"
+            android:exported="false"
+            android:foregroundServiceType="microphone|location|phoneCall"
+            tools:node="merge"
+            tools:replace="android:exported"/>
+
 
 
         <uses-library 
             android:name="org.apache.http.legacy" 
             android:required="false"/>
 
-        <receiver 
-            android:name="com.shounakmulay.telephony.sms.IncomingSmsReceiver"
-            android:permission="android.permission.BROADCAST_SMS"
-            android:exported="true">
-            <intent-filter android:priority="999">
-                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
-             </intent-filter>
-        </receiver>
-
-
-        <service
-            android:name="com.shounakmulay.telephony.sms.SmsService"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:exported="true" />
 
 
     </application>
