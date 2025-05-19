@@ -10,13 +10,13 @@ import 'package:login/screens/settings.dart';
 
 class MyNavigationBar extends StatelessWidget {
   final UserModel user;
-  final KeywordModel? keywordData;
+  final List<KeywordModel> allKeywords;
   final List<ContactModel> contacts;
 
   const MyNavigationBar({
     Key? key,
     required this.user,
-    required this.keywordData,
+    required this.allKeywords,
     required this.contacts,
   }) : super(key: key);
 
@@ -24,7 +24,7 @@ class MyNavigationBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(NavigationController(
       user: user,
-      keywordData: keywordData,
+      allKeywords: allKeywords,
       contacts: contacts,
     ));
 
@@ -77,11 +77,11 @@ class NavigationController extends GetxController {
 
   NavigationController({
     required UserModel user,
-    required KeywordModel? keywordData,
+    required List<KeywordModel> allKeywords,
     required List<ContactModel> contacts,
   }) {
     screens = [
-      HomePage(user: user, keywordData: keywordData, contacts: contacts),
+      HomePage(user: user, allKeywords: allKeywords, contacts: contacts),
       AllKeywords(user: user),
       const Center(child: Text("History")),
       ProfileScreen(user: user),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:login/widgets/LiveSafe/BusStationCard.dart';
+import 'package:login/widgets/LiveSafe/GasStation.dart';
 import 'package:login/widgets/LiveSafe/HospitalCard.dart';
 import 'package:login/widgets/LiveSafe/PharmacyCard.dart';
 import 'package:login/widgets/LiveSafe/PoliceStationCard.dart';
@@ -32,6 +33,7 @@ class LiveSafe extends StatelessWidget {
           Hospitalcard(onMapFunction: openMap),
           Pharmacycard(onMapFunction: openMap),
           Busstationcard(onMapFunction: openMap),
+          Gasstationcard(onMapFunction: openMap),
         ],
       ),
     );

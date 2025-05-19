@@ -33,8 +33,8 @@ Future<void> playAudioDuringCall(String filePath) async {
 // Initialize the notification plugin
 Future<void> initializeService(List<ContactModel> contacts, List<KeywordModel> keywordDataList) async {
   print("🚀 Starting background service...");
-  print("Keyword to detect: \${keywordModel.voiceText}");
-  print("Total contacts: \${contacts.length}");
+  print("Keyword to detect: ${keywordDataList.map((k) => k.voiceText).join(', ')}");
+  print("Total contacts: ${contacts.length}");
 
   // Request permissions
   await Permission.microphone.request();
@@ -81,6 +81,7 @@ Future<void> initializeService(List<ContactModel> contacts, List<KeywordModel> k
     'keywordID': e.keywordID,
     'userID': e.userID,
     'voiceText': e.voiceText,
+    'priority': e.priority,
   }).toList(),
   });
 
@@ -138,7 +139,7 @@ void onStart(ServiceInstance service) async {
       var rawList = event['keywordText'] as List;
       keywordDataList = rawList.map<KeywordModel>((e) {
         if (e is String) {
-          return KeywordModel(voiceText: e, userID: ""); // fallback if needed
+          return KeywordModel(voiceText: e, userID: "", priority: "low"); // fallback if needed
         } else if (e is Map<String, dynamic>) {
           return KeywordModel.fromJson(e);
         } else {
@@ -197,7 +198,7 @@ Future<void> startListeningSession(SpeechToText speech, List<dynamic> contacts, 
           }
 
           try {
-            for (var contact in contacts) {
+            for (var contact in matchedContacts) {
               await Future.delayed(Duration(seconds: 2));
               service.invoke('make-call', {
                 'contacts': [contact],

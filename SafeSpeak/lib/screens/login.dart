@@ -92,7 +92,7 @@ Future<void> _fetchUserDataAndInitializeService(String userId) async {
       MaterialPageRoute(
         builder: (context) => MyNavigationBar(
           user: userData,
-          keywordData: keywordDataList.isNotEmpty ? keywordDataList[0] : null,
+          allKeywords: keywordDataList,
           contacts: contacts,
         ),
       ),

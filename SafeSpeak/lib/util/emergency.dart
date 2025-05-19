@@ -90,3 +90,22 @@ List<String> _splitMessage(String message, {int partLength = 160}) {
   return parts;
 }
 
+// Future<void> _makePhoneCall(String phoneNumber) async {
+//   final status = await Permission.phone.status;
+//   if (!status.isGranted) {
+//     final result = await Permission.phone.request();
+//     if (!result.isGranted) {
+//       print('❌ CALL_PHONE permission not granted');
+//       return;
+//     }
+//   }
+
+//   final callMade = await FlutterPhoneDirectCaller.callNumber(phoneNumber);
+//   if (callMade != null && callMade) {
+//     print('📞 Call placed successfully');
+//   } else {
+//     print('❌ Call failed');
+//   }
+// }
+
+

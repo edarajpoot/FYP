@@ -8,7 +8,29 @@ import 'package:get/get.dart';
 import 'package:login/screens/backgroungServices.dart';
 import 'package:login/screens/splash.dart';
 import 'package:login/util/emergency.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'firebase_options.dart';
+
+// Place this BEFORE void main()
+Future<void> _makePhoneCall(String phoneNumber) async {
+  final status = await Permission.phone.status;
+  if (!status.isGranted) {
+    final result = await Permission.phone.request();
+    if (!result.isGranted) {
+      print('❌ CALL_PHONE permission not granted');
+      return;
+    }
+  }
+
+  final callMade = await FlutterPhoneDirectCaller.callNumber(phoneNumber);
+  if (callMade != null && callMade) {
+    print('📞 Call placed successfully');
+    await Future.delayed(Duration(seconds: 3));  // 3 second ka delay
+  } else {
+    print('❌ Call failed');
+  }
+}
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,6 +42,7 @@ void main() async {
   // Listen for call trigger from background service
   void setupBackgroundListeners() {
   FlutterBackgroundService().on('make-call').listen((event) async {
+
     if (event != null && event['contacts'] != null) {
       List<dynamic> contacts = event['contacts'];
       FlutterBackgroundService().invoke("setAsForeground");
@@ -28,14 +51,20 @@ void main() async {
         String contactNumber = contact['contactNumber'];
 
         if (contactNumber.isNotEmpty) {
+
+           // 👇 Bring service to foreground before sensitive actions
+           FlutterBackgroundService().invoke("setAsForeground");
+
+           print("📞 Calling from MAIN isolate: $contactNumber");
+           await _makePhoneCall(contactNumber);
+
           print("Sending Message from MAIN isolate: $contactNumber");
           sendSmsWithLocation(contactNumber, "🚨 This is an emergency! Please help.");
 
-          print("📞 Calling from MAIN isolate: $contactNumber");
-          await FlutterPhoneDirectCaller.callNumber(contactNumber);
+          // await FlutterPhoneDirectCaller.callNumber(contactNumber);
           
-           // Play Audio After Call is initiated
-          await platform.invokeMethod('playAudioDuringCall', {'filePath': 'assets/audio/recording.mp3'});
+          //  // Play Audio After Call is initiated
+          // await platform.invokeMethod('playAudioDuringCall', {'filePath': 'assets/audio/recording.mp3'});
 
           await Future.delayed(Duration(seconds: 5));
         }

@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:login/model/contactModel.dart';
 import 'package:login/model/keywordModel.dart';
 import 'package:login/screens/backgroungServices.dart';
@@ -17,13 +16,13 @@ import 'package:permission_handler/permission_handler.dart';
 
 class HomePage extends StatefulWidget {
   final UserModel user;
-  final KeywordModel? keywordData;
+  final List<KeywordModel> allKeywords;
   final List<ContactModel> contacts;
   final Function? onMapFunction;
   const HomePage({
     Key? key, 
     required this.user,
-    required this.keywordData,
+    required this.allKeywords,
     required this.contacts,
     this.onMapFunction,
     }): super(key: key);
@@ -71,19 +70,38 @@ Future<void> _requestMicrophonePermission() async {
     getRandomQuote();
     _requestMicrophonePermission();
     super.initState();
-    _startBackgroundService();
+    initializeService(widget.contacts, widget.allKeywords);
+  //   _startBackgroundService();
 
-   if (widget.keywordData != null && widget.contacts.isNotEmpty) {
-    print('✅ Sending keyword to background: ${widget.keywordData!.voiceText}');
-    print('✅ Contacts to background: ${widget.contacts.length}');
-    initializeService(widget.contacts, [widget.keywordData!]);
-  } else {
-    print('⚠️ No keyword or contacts provided to service');
-  }
-  }
-   Future<void> _startBackgroundService() async {
-    await FlutterBackgroundService().startService();
-  }
+  //  if (widget.keywordData != null && widget.contacts.isNotEmpty) {
+  //   print('✅ Sending keyword to background: ${widget.keywordData!.voiceText}');
+  //   print('✅ Contacts to background: ${widget.contacts.length}');
+  //   initializeService(widget.contacts, [widget.keywordData!]);
+  // } else {
+  //   print('⚠️ No keyword or contacts provided to service');
+  // }
+  // }
+  //  Future<void> _startBackgroundService() async {
+  // final service = FlutterBackgroundService();
+
+  // bool isRunning = await service.isRunning();
+  // print("🧪 Service already running? $isRunning");
+
+  // if (!isRunning) {
+  //   await service.startService();
+  //   print("✅ Background service started");
+
+  //   // Only initialize data once when service starts
+  //   if (widget.keywordData != null && widget.contacts.isNotEmpty) {
+  //     print('✅ Sending keyword to background: ${widget.keywordData!.voiceText}');
+  //     print('✅ Contacts to background: ${widget.contacts.length}');
+  //     initializeService(widget.contacts, [widget.keywordData!]);
+  //   }
+  // } else {
+  //   print("🟡 Service already running, skipping startService");
+  // }
+}
+
 
   
 

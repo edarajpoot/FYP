@@ -10,7 +10,8 @@ void main() {
     home: KeywordSavedScreen(
       keyword: "Test Keyword",
       userID:"TestUserId",
-      keywordID:"TestKeywordId"),
+      keywordID:"TestKeywordId",
+      priority: "low",),
   ));
 }
 
@@ -19,10 +20,13 @@ class KeywordSavedScreen extends StatefulWidget {
   final String keyword;
   final String userID;
   final String keywordID;
+  final String priority;
+
   const KeywordSavedScreen({super.key, 
   required this.keyword,
   required this.userID,
   required this.keywordID,
+  required this.priority
   });
   
   
@@ -75,13 +79,13 @@ class _KeywordSavedScreenState extends State<KeywordSavedScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 10),
                     decoration: BoxDecoration(
-                      color: Colors.grey[300],
+                      color: Color.fromRGBO(37, 66, 43, 0.6),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       widget.keyword, // Fixed
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color.fromRGBO(37, 66, 43, 1)),
                     ),
                   ),
                   const SizedBox(height: 60),
@@ -91,7 +95,7 @@ class _KeywordSavedScreenState extends State<KeywordSavedScreen> {
                         context,
                          MaterialPageRoute(builder: (context) => EmergencyContactScreen(
                           keywordID: widget.keywordID,
-                          userID:widget.userID)),
+                          userID:widget.userID,)),
                         );
                         },
                         style: ElevatedButton.styleFrom(

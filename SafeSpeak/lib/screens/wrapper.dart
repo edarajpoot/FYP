@@ -38,8 +38,8 @@ class _WrapperState extends State<Wrapper> {
 
                 if (userSnapshot.hasData && userSnapshot.data != null) {
                   // Fetch the keywordData and contacts
-                  return FutureBuilder<KeywordModel?>(
-                    future: DatabaseService().getKeywordData(user.uid),
+                  return FutureBuilder<List<KeywordModel>>(
+                    future: DatabaseService().getAllKeywords(user.uid),
                     builder: (context, keywordSnapshot) {
                       if (keywordSnapshot.connectionState == ConnectionState.waiting) {
                         return const SplashScreen();
@@ -50,7 +50,8 @@ class _WrapperState extends State<Wrapper> {
                         return FutureBuilder<List<ContactModel>>(
                           future: DatabaseService().getContactList(
                             user.uid, 
-                            keywordSnapshot.data?.keywordID ?? 'default_keyword',                          ),
+                             keywordSnapshot.data!.first.keywordID ?? 'default_keyword',                         
+                            ),
                           builder: (context, contactsSnapshot) {
                             if (contactsSnapshot.connectionState == ConnectionState.waiting) {
                               return const SplashScreen();
@@ -59,7 +60,7 @@ class _WrapperState extends State<Wrapper> {
                             if (contactsSnapshot.hasData && contactsSnapshot.data != null) {
                               return HomePage(
                                 user: userSnapshot.data!,
-                                keywordData: keywordSnapshot.data,
+                                allKeywords: keywordSnapshot.data!,
                                 contacts: contactsSnapshot.data!,
                               );
                             } else {

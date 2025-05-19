@@ -8,17 +8,20 @@ class EmergencyAlertKeyword {
   final String? keywordID; // Nullable since Firestore generates it
   final String userID; // Foreign Key
   final String voiceText;
+  final String priority;
 
   EmergencyAlertKeyword({
     this.keywordID, // Firestore will generate this
     required this.userID,
     required this.voiceText,
+    required this.priority,
   });
 
   Map<String, dynamic> toMap() {
     return {
       "userID": userID,
       "voiceText": voiceText,
+      "priority": priority,
     };
   }
 
@@ -27,6 +30,7 @@ class EmergencyAlertKeyword {
       keywordID: id, // Assign Firestore-generated ID
       userID: map["userId"] ?? "",
       voiceText: map["voiceText"] ?? "",
+      priority: map["priority"] ?? "low",
     );
   }
 }
@@ -50,6 +54,7 @@ class SetKeywordScreen extends StatefulWidget {
 class _SetKeywordScreenState extends State<SetKeywordScreen> {
   final TextEditingController _keywordController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String _selectedPriority = "low";
 
   Future<void> saveKeyword() async {
     String keywordText = _keywordController.text.trim();
@@ -94,6 +99,7 @@ class _SetKeywordScreenState extends State<SetKeywordScreen> {
       keywordID: "", // Firestore auto-generates
       userID: widget.userID, // Replace with actual user ID
       voiceText: keywordText,
+      priority: _selectedPriority,
     );
 
     try {
@@ -108,7 +114,8 @@ class _SetKeywordScreenState extends State<SetKeywordScreen> {
       MaterialPageRoute(builder: (context) => KeywordSavedScreen(
         keyword: keywordText,
         keywordID: generatedKeywordID,
-        userID: widget.userID,)),
+        userID: widget.userID,
+        priority: _selectedPriority)),
     );
     
     } catch (e) {
@@ -171,7 +178,52 @@ class _SetKeywordScreenState extends State<SetKeywordScreen> {
                       ),
                   ),
 
-                  
+                  const SizedBox(height: 20,),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Set Priority:",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color.fromRGBO(37, 66, 43, 1)),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Radio<String>(
+                            value: "high",
+                            groupValue: _selectedPriority,
+                            activeColor: Color.fromRGBO(37, 66, 43, 1),
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedPriority = value!;
+                              });
+                            },
+                          ),
+                          const Text("High",
+                          style: TextStyle(
+                            color: Color.fromRGBO(37, 66, 43, 1)
+                          ),),
+                          const SizedBox(width: 20),
+                          Radio<String>(
+                            value: "low",
+                            groupValue: _selectedPriority,
+                            activeColor: Color.fromRGBO(37, 66, 43, 1),
+                            onChanged: (value) {
+                              setState(() {
+                                _selectedPriority = value!;
+                              });
+                            },
+                          ),
+                          const Text("Low",
+                          style: TextStyle(
+                            color: Color.fromRGBO(37, 66, 43, 1)
+                          ),),
+                        ],
+                      ),
+                    ],
+                  ),
+
+
                   const SizedBox(height: 40),
 
                   ElevatedButton(
