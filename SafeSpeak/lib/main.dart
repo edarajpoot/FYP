@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
 import 'package:firebase_core/firebase_core.dart';
@@ -5,13 +6,28 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-import 'package:login/screens/backgroungServices.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:login/model/callHistoryModel.dart';
+import 'package:login/screens/history.dart';
 import 'package:login/screens/splash.dart';
 import 'package:login/util/emergency.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'firebase_options.dart';
 
-// Place this BEFORE void main()
+final AudioPlayer _player = AudioPlayer();
+String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
+
+Future<void> _playBackAudio() async {
+  try {
+  // 👇 asset file se load aur play
+    await _player.setAsset('assets/audio/Audio.mp3');
+    _player.play();
+    print('Audio played!');
+  } catch (e) {
+    print('Error playing audio: $e');
+  }
+}
+
 Future<void> _makePhoneCall(String phoneNumber) async {
   final status = await Permission.phone.status;
   if (!status.isGranted) {
@@ -21,13 +37,59 @@ Future<void> _makePhoneCall(String phoneNumber) async {
       return;
     }
   }
+  await saveCallToFirestore(phoneNumber,userId,"accepted");
+  await FlutterPhoneDirectCaller.callNumber(phoneNumber);
+  await Future.delayed(Duration(seconds: 10));
+  // _playBackAudio();
+}
 
-  final callMade = await FlutterPhoneDirectCaller.callNumber(phoneNumber);
-  if (callMade != null && callMade) {
-    print('📞 Call placed successfully');
-    await Future.delayed(Duration(seconds: 3));  // 3 second ka delay
-  } else {
-    print('❌ Call failed');
+Future<String?> getContactIdByNumber(String number, String userId,) async {
+  try {
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('EmergencyContacts')
+        .where('contactNumber', isEqualTo: number)
+        .where('userID', isEqualTo: userId) // If you are storing user-wise contacts
+        .get();
+
+    if (snapshot.docs.isNotEmpty) {
+      return snapshot.docs.first.id; // Ye hi aapka contactID hai
+    } else {
+      print("Contact not found");
+      return null;
+    }
+  } catch (e) {
+    print("Error getting contact ID: $e");
+    return null;
+  }
+}
+
+
+Future<void> saveCallToFirestore(String number, String userId, String status) async {
+  try {
+    debugPrint('Saving call history for $number (User: $userId)');
+    
+    String? contactId = await getContactIdByNumber(number, userId);
+    if (contactId == null) {
+      debugPrint('⚠️ No contact found for number: $number');
+      return;
+    }
+    
+    final history = CallHistory(
+      userID: userId,
+      contactID: contactId,
+      timeStamp: DateTime.now(),
+      callStatus: status,
+    );
+
+    final docRef = await FirebaseFirestore.instance
+        .collection('CallHistory')
+        .add(history.toMap());
+    
+    debugPrint('✅ Call saved successfully. ID: ${docRef.id}');
+    debugPrint('📄 Document data: ${history.toMap()}');
+  } catch (e, stack) {
+    debugPrint('❌ Error saving call history: $e');
+    debugPrint('Stack trace: $stack');
   }
 }
 
@@ -53,15 +115,13 @@ void main() async {
         if (contactNumber.isNotEmpty) {
 
            // 👇 Bring service to foreground before sensitive actions
-           FlutterBackgroundService().invoke("setAsForeground");
+          FlutterBackgroundService().invoke("setAsForeground");
 
-           print("📞 Calling from MAIN isolate: $contactNumber");
-           await _makePhoneCall(contactNumber);
+          print("📞 Calling from MAIN isolate: $contactNumber");
+          await _makePhoneCall(contactNumber);
 
           print("Sending Message from MAIN isolate: $contactNumber");
           sendSmsWithLocation(contactNumber, "🚨 This is an emergency! Please help.");
-
-          // await FlutterPhoneDirectCaller.callNumber(contactNumber);
           
           //  // Play Audio After Call is initiated
           // await platform.invokeMethod('playAudioDuringCall', {'filePath': 'assets/audio/recording.mp3'});
@@ -71,7 +131,26 @@ void main() async {
       }
     }
   });
+
+  // Handle location-only alerts (low priority)
+  FlutterBackgroundService().on('send-location').listen((event) async {
+    if (event != null && event['contacts'] != null) {
+      List<dynamic> contacts = event['contacts'];
+      String message = event['message'] ?? 'Location alert';
+      
+      for (var contact in contacts) {
+        String contactNumber = contact['contactNumber'];
+        if (contactNumber.isNotEmpty) {
+          print("📍 Sending location to: $contactNumber");
+          sendSmsWithLocation(contactNumber, message);
+        }
+      }
+    }
+  });
+
 }
+
+
 
  setupBackgroundListeners();
 

@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:login/model/contactModel.dart';
 import 'package:login/model/keywordModel.dart';
 import 'package:login/screens/location.dart';
@@ -16,6 +17,28 @@ import 'package:flutter/services.dart';
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
 const platform = MethodChannel('com.safespeak/audio');
+
+// Audio Service Implementation
+final AudioPlayer _audioPlayer = AudioPlayer();
+Future<void> _playAudio() async {
+  try {
+  // 👇 asset file se load aur play
+    await _audioPlayer.setAsset('assets/audio/Audio.mp3');
+    _audioPlayer.play();
+    print('Audio played!');
+  } catch (e) {
+    print('Error playing audio: $e');
+  }
+}
+  
+  Future<void> _stopAudio() async {
+    try {
+      await _audioPlayer.stop();
+      print('⏹️ Audio stopped!');
+    } catch (e) {
+      print('❌ Error stopping audio: $e');
+    }
+  }
 
 
 // Method to invoke audio playback on the phone's background during the call
@@ -42,6 +65,9 @@ Future<void> initializeService(List<ContactModel> contacts, List<KeywordModel> k
   await Permission.sms.request();
   await Permission.ignoreBatteryOptimizations.request(); // 🔋 Battery optimization ignore
   await Permission.location.request();
+  await Permission.audio.request();
+  await Permission.bluetooth.request();
+
 
   PermissionStatus microphoneStatus = await Permission.microphone.status;
   PermissionStatus phoneStatus = await Permission.phone.status;
@@ -184,7 +210,7 @@ Future<void> startListeningSession(SpeechToText speech, List<dynamic> contacts, 
       // Iterate over the list of keywords and match the spoken word
       for (var keyword in keywordDataList) {
         if (spoken.contains(keyword.voiceText.toLowerCase()) && !isCallInProgress) {
-          print("🚨 Keyword matched! Calling now...");
+          print("🚨 Keyword matched! Priority: ${keyword.priority}");
           isCallInProgress = true;
 
           // 🔍 Filter contacts linked to this keyword
@@ -198,28 +224,39 @@ Future<void> startListeningSession(SpeechToText speech, List<dynamic> contacts, 
           }
 
           try {
-            for (var contact in matchedContacts) {
-              await Future.delayed(Duration(seconds: 2));
+            if (keyword.priority.toLowerCase() == 'high') {
+              print("🔊 HIGH PRIORITY: Playing siren and calling contacts");
+              // // Play siren audio
+              // _playAudio();
+              // await Future.delayed(Duration(seconds: 15));
+              // _stopAudio();
+              
+              // Trigger emergency calls
               service.invoke('make-call', {
-                'contacts': [contact],
+                'contacts': matchedContacts,
+                'priority': 'high'
               });
-
-              await Future.delayed(Duration(seconds: 5)); // Allow time for the call to be made
+            } 
+            else {
+              print("📍 LOW PRIORITY: Sending location only");
+              // Just send location without calling
+              service.invoke('send-location', {
+                'contacts': matchedContacts,
+                'message': 'Location alert for keyword: ${keyword.voiceText}'
+              });
             }
           } catch (e) {
             print("❌ Error during emergency handling: $e");
+          } finally {
+            isCallInProgress = false;
           }
-
-          await Future.delayed(Duration(seconds: 5));
-          isCallInProgress = false;
         }
       }
 
-      // If it's the final result, restart listening without stopping
       if (result.finalResult) {
-        print("🛑 Final result received. Restarting listening without stopping...");
+        print("🔄 Restarting listening...");
         await Future.delayed(Duration(seconds: 1));
-        await startListeningSession(speech, contacts, keywordDataList, service); // Recursively call to restart listening
+        await startListeningSession(speech, contacts, keywordDataList, service);
       }
     },
   );

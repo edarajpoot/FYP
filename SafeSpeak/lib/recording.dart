@@ -13,6 +13,7 @@ class _AudioPlayerFromAssetState extends State<AudioPlayerFromAsset> {
     try {
       // 👇 asset file se load aur play
       await _player.setAsset('assets/audio/Recording.m4a');
+      print('Audio played!');
       _player.play();
     } catch (e) {
       print('Error playing audio: $e');

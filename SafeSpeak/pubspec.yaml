@@ -60,7 +60,7 @@ dependencies:
   # file_picker: ^10.1.2
   # geolocator: ^10.1.0
   # agora_rtc_engine: ^6.2.5
-  # path_provider: ^2.1.2
+  path_provider: ^2.1.2
   # audioplayers: ^6.4.0
   just_audio: ^0.9.36
   fluttertoast: ^8.2.12
@@ -68,7 +68,11 @@ dependencies:
   curved_navigation_bar: ^1.0.6
   flutter_tts: ^4.2.2
   audio_session: ^0.1.9+1  
-  
+  flutter_sound: ^9.2.13
+  phone_state: ^2.1.1
+  call_log: ^5.1.0
+  intl: ^0.20.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -95,6 +99,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - assets/audio/Audio.mp3
     - assets/audio/Recording.m4a
   #   - images/a_dot_ham.jpeg
 

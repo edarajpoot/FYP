@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:login/model/callHistoryModel.dart';
 import 'package:login/model/contactModel.dart';
 import 'package:login/model/keywordModel.dart';
 import 'package:login/model/usermodel.dart';
@@ -178,9 +179,9 @@ Future<List<ContactModel>> getContactList(String userId, String keywordId) async
   // }
 
   // 🔹 Log Call History
-  Future<void> logCall(MessageHistory call) async {
+  Future<void> logCall(CallHistory call) async {
     try {
-      DocumentReference docRef = await _fire.collection("MessageHistory").add(call.toMap());
+      DocumentReference docRef = await _fire.collection("CallHistory").add(call.toMap());
       print("Call logged with ID: ${docRef.id}");
     } catch (e) {
       print("Error saving call history: $e");

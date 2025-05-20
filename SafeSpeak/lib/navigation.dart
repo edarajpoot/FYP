@@ -4,6 +4,7 @@ import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:login/model/contactModel.dart';
 import 'package:login/model/keywordModel.dart';
 import 'package:login/model/usermodel.dart';
+import 'package:login/screens/HistoryScreen.dart';
 import 'package:login/screens/home.dart';
 import 'package:login/screens/newKeyword.dart';
 import 'package:login/screens/settings.dart';
@@ -83,7 +84,7 @@ class NavigationController extends GetxController {
     screens = [
       HomePage(user: user, allKeywords: allKeywords, contacts: contacts),
       AllKeywords(user: user),
-      const Center(child: Text("History")),
+      CallHistoryScreen(),
       ProfileScreen(user: user),
     ];
   }
