@@ -26,7 +26,7 @@ class _CallHistoryScreenState extends State<CallHistoryScreen> {
       _callHistoryStream = FirebaseFirestore.instance
           .collection('CallHistory')
           .where('userID', isEqualTo: userId)
-          .orderBy('timeStamp', descending: true)
+          // .orderBy('timeStamp', descending: true)
           .snapshots();
     });
   }
@@ -72,19 +72,22 @@ class _CallHistoryScreenState extends State<CallHistoryScreen> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            debugPrint('No documents found in snapshot');
-            return const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.history_toggle_off, size: 48),
-                  SizedBox(height: 16),
-                  Text('No call history found'),
-                ],
-              ),
-            );
-          }
+          if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+  return ListView(
+    children: snapshot.data!.docs.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      final time = (data['timeStamp'] as Timestamp).toDate();
+      final formattedTime = DateFormat.yMd().add_jm().format(time);
+
+      return ListTile(
+        leading: Icon(Icons.phone),
+        title: Text('Contact ID: ${data['contactID']}'),
+        subtitle: Text('Status: ${data['callStatus']}'),
+        trailing: Text(formattedTime),
+      );
+    }).toList(),
+  );
+}
 
           debugPrint('Documents found: ${snapshot.data!.docs.length}');
           
