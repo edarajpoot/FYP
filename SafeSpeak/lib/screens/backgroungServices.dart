@@ -226,10 +226,10 @@ Future<void> startListeningSession(SpeechToText speech, List<dynamic> contacts, 
           try {
             if (keyword.priority.toLowerCase() == 'high') {
               print("🔊 HIGH PRIORITY: Playing siren and calling contacts");
-              // // Play siren audio
-              // _playAudio();
-              // await Future.delayed(Duration(seconds: 15));
-              // _stopAudio();
+              // Play siren audio
+              _playAudio();
+              await Future.delayed(Duration(seconds: 15));
+              _stopAudio();
               
               // Trigger emergency calls
               service.invoke('make-call', {
