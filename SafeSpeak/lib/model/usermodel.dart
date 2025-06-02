@@ -4,7 +4,7 @@ class UserModel {
   final String email;
   final String phoneNo;
   bool emergencyMode;
-  final String password;
+  String password;
 
   UserModel({
     required this.id,

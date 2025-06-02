@@ -34,7 +34,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     String email = emailController.text.trim();
     String password = passwordController.text.trim();
     String phoneNo = phoneNoController.text.trim();
-    bool emergencyMode = emergencyModeController.text.trim().toLowerCase() == 'true';
+    bool emergencyMode = true;
 
     if (name.isEmpty || email.isEmpty || password.length < 6) {
       showErrorDialog("Enter a valid name, email & password (6+ characters).");

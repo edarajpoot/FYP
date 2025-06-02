@@ -4,7 +4,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:login/model/contactModel.dart';
 import 'package:login/model/keywordModel.dart';
 import 'package:login/screens/location.dart';
@@ -19,26 +18,26 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterL
 const platform = MethodChannel('com.safespeak/audio');
 
 // Audio Service Implementation
-final AudioPlayer _audioPlayer = AudioPlayer();
-Future<void> _playAudio() async {
-  try {
-  // 👇 asset file se load aur play
-    await _audioPlayer.setAsset('assets/audio/Audio.mp3');
-    _audioPlayer.play();
-    print('Audio played!');
-  } catch (e) {
-    print('Error playing audio: $e');
-  }
-}
+// final AudioPlayer _audioPlayer = AudioPlayer();
+// Future<void> _playAudio() async {
+//   try {
+//   // 👇 asset file se load aur play
+//     await _audioPlayer.setAsset('assets/audio/Audio.mp3');
+//     _audioPlayer.play();
+//     print('Audio played!');
+//   } catch (e) {
+//     print('Error playing audio: $e');
+//   }
+// }
   
-  Future<void> _stopAudio() async {
-    try {
-      await _audioPlayer.stop();
-      print('⏹️ Audio stopped!');
-    } catch (e) {
-      print('❌ Error stopping audio: $e');
-    }
-  }
+//   Future<void> _stopAudio() async {
+//     try {
+//       await _audioPlayer.stop();
+//       print('⏹️ Audio stopped!');
+//     } catch (e) {
+//       print('❌ Error stopping audio: $e');
+//     }
+//   }
 
 
 // Method to invoke audio playback on the phone's background during the call
@@ -226,10 +225,11 @@ Future<void> startListeningSession(SpeechToText speech, List<dynamic> contacts, 
           try {
             if (keyword.priority.toLowerCase() == 'high') {
               print("🔊 HIGH PRIORITY: Playing siren and calling contacts");
+
               // Play siren audio
-              _playAudio();
-              await Future.delayed(Duration(seconds: 15));
-              _stopAudio();
+              // _playAudio();
+              // await Future.delayed(Duration(seconds: 10));
+              // _stopAudio();
               
               // Trigger emergency calls
               service.invoke('make-call', {
@@ -250,6 +250,13 @@ Future<void> startListeningSession(SpeechToText speech, List<dynamic> contacts, 
           } finally {
             isCallInProgress = false;
           }
+          // Restart listening after 1 minute
+          Future.delayed(Duration(minutes: 1), () {
+            print("🔄 Cooldown over, resuming listening...");
+            startListeningSession(speech, contacts, keywordDataList, service);
+          });
+
+          return; // Exit after first match
         }
       }
 

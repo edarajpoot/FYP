@@ -70,36 +70,12 @@ Future<void> _requestMicrophonePermission() async {
     getRandomQuote();
     _requestMicrophonePermission();
     super.initState();
+    if (widget.user.emergencyMode == true) {
+    print("service Initialize");
     initializeService(widget.contacts, widget.allKeywords);
-  //   _startBackgroundService();
-
-  //  if (widget.keywordData != null && widget.contacts.isNotEmpty) {
-  //   print('✅ Sending keyword to background: ${widget.keywordData!.voiceText}');
-  //   print('✅ Contacts to background: ${widget.contacts.length}');
-  //   initializeService(widget.contacts, [widget.keywordData!]);
-  // } else {
-  //   print('⚠️ No keyword or contacts provided to service');
-  // }
-  // }
-  //  Future<void> _startBackgroundService() async {
-  // final service = FlutterBackgroundService();
-
-  // bool isRunning = await service.isRunning();
-  // print("🧪 Service already running? $isRunning");
-
-  // if (!isRunning) {
-  //   await service.startService();
-  //   print("✅ Background service started");
-
-  //   // Only initialize data once when service starts
-  //   if (widget.keywordData != null && widget.contacts.isNotEmpty) {
-  //     print('✅ Sending keyword to background: ${widget.keywordData!.voiceText}');
-  //     print('✅ Contacts to background: ${widget.contacts.length}');
-  //     initializeService(widget.contacts, [widget.keywordData!]);
-  //   }
-  // } else {
-  //   print("🟡 Service already running, skipping startService");
-  // }
+  } else {
+    print("Emergency mode is OFF, service not initialized.");
+  }
 }
 
 
@@ -115,66 +91,8 @@ Future<void> _requestMicrophonePermission() async {
 
   @override
   Widget build(BuildContext context) {
-    // String keywordText = widget.keywordData?.voiceText ?? 'No Keyword';
-
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-  //     floatingActionButton: AvatarGlow(
-  //       animate: isListening,
-  //       duration: const Duration(milliseconds: 2000),
-  //       glowColor: const Color(0xff00A67E),
-  //       repeat: true,
-  //       child: GestureDetector(
-  //         onTapDown: (details) async {
-  //           if (!isListening) {
-  //             var available = await speechToText.initialize();
-  //             if (available) {
-  //               setState(() {
-  //                 isListening = true;
-  //                 speechToText.listen(
-  //                   onResult: (result) {
-  //                     setState(() {
-  //                     });
-  //                     String spokenText = result.recognizedWords.toLowerCase();
-  //                     String keywordText = widget.keywordData?.voiceText.toLowerCase() ?? '';
-
-  //                     if (spokenText.contains(keywordText)) {
-  //   // Match found, now find all contacts linked to this keywordID
-  //   String matchedKeywordID = widget.keywordData?.keywordID ?? '';
-
-  //   for (var contact in widget.contacts) {
-  //     if (contact.keywordID == matchedKeywordID) {
-  //       _makeEmergencyCall(contact.contactNumber);
-  //       break; // call only the first one, or remove break if you want multiple
-  //     }
-  //   }
-  // }
-  //                   },
-  //                 );
-  //               });
-  //             } else {
-  //               ScaffoldMessenger.of(context).showSnackBar(
-  //                 const SnackBar(content: Text('Speech recognition is not available on this device.')),
-  //               );
-  //             }
-  //           }
-  //         },
-  //         onTapUp: (details) {
-  //           setState(() {
-  //             isListening = false;
-  //           });
-  //           speechToText.stop();
-  //         },
-  //         child: CircleAvatar(
-  //           backgroundColor: const Color(0xff00A67E),
-  //           radius: 35,
-  //           child: Icon(
-  //             isListening ? Icons.mic : Icons.mic_none,
-  //             color: Colors.white,
-  //           ),
-  //         ),
-  //       ),
-  //     ),
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Padding(
@@ -191,23 +109,6 @@ Future<void> _requestMicrophonePermission() async {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-          //   Text('User: ${widget.user.name}'),
-          //   Text('Email: ${widget.user.email}'),
-          //  Text('Keyword: $keywordText'),
-          //    // Check if contacts are available and display them
-          //   widget.contacts.isEmpty
-          //       ? const Text('No contacts available.')
-          //       : ListView.builder(
-          //           shrinkWrap: true, // Prevents ListView from taking up unnecessary space
-          //           itemCount: widget.contacts.length,
-          //           itemBuilder: (context, index) {
-          //             final contact = widget.contacts[index];
-          //             return ListTile(
-          //               title: Text(contact.contactName),
-          //               subtitle: Text(contact.contactNumber),
-          //             );
-          //           },
-          //         ),
             CustomAppBar(
               quoteIndex: qIndex,
               onTap: () {

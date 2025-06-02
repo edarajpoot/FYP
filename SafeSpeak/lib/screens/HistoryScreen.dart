@@ -26,7 +26,7 @@ class _CallHistoryScreenState extends State<CallHistoryScreen> {
       _callHistoryStream = FirebaseFirestore.instance
           .collection('CallHistory')
           .where('userID', isEqualTo: userId)
-          // .orderBy('timeStamp', descending: true)
+          .orderBy('timeStamp', descending: true)
           .snapshots();
     });
   }
@@ -53,92 +53,94 @@ class _CallHistoryScreenState extends State<CallHistoryScreen> {
           ),
         ],
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: _callHistoryStream,
-        builder: (context, snapshot) {
-          // Debug output
-          debugPrint('StreamBuilder State - Connection: ${snapshot.connectionState}, HasError: ${snapshot.hasError}, HasData: ${snapshot.hasData}');
-          
-          if (snapshot.hasError) {
-            debugPrint('Stream Error: ${snapshot.error}');
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error, color: Colors.red, size: 48),
-                  const SizedBox(height: 16),
-                  const Text('Error loading call history'),
-                  Text(snapshot.error.toString()),
-                  ElevatedButton(
-                    onPressed: _refreshStream,
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-//           if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-//   return ListView(
-//     children: snapshot.data!.docs.map((doc) {
-//       final data = doc.data() as Map<String, dynamic>;
-//       final time = (data['timeStamp'] as Timestamp).toDate();
-//       final formattedTime = DateFormat.yMd().add_jm().format(time);
-
-//       return ListTile(
-//         leading: Icon(Icons.phone),
-//         title: Text('Contact ID: ${data['contactID']}'),
-//         subtitle: Text('Status: ${data['callStatus']}'),
-//         trailing: Text(formattedTime),
-//       );
-//     }).toList(),
-//   );
-// }
-
-          debugPrint('Documents found: ${snapshot.data!.docs.length}');
-          
-          return ListView.builder(
-            padding: const EdgeInsets.all(8),
-            itemCount: snapshot.data!.docs.length,
-            itemBuilder: (context, index) {
-              final doc = snapshot.data!.docs[index];
-              final data = doc.data() as Map<String, dynamic>;
-              debugPrint('Document $index data: $data');
-              
-              try {
-                final history = CallHistory.fromMap(doc.id, data);
+      body: SafeArea(
+        child: StreamBuilder<QuerySnapshot>(
+          stream: _callHistoryStream,
+          builder: (context, snapshot) {
+            // Debug output
+            debugPrint('StreamBuilder State - Connection: ${snapshot.connectionState}, HasError: ${snapshot.hasError}, HasData: ${snapshot.hasData}');
+            
+            if (snapshot.hasError) {
+              debugPrint('Stream Error: ${snapshot.error}');
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.error, color: Colors.red, size: 48),
+                    const SizedBox(height: 16),
+                    const Text('Error loading call history'),
+                    Text(snapshot.error.toString()),
+                    ElevatedButton(
+                      onPressed: _refreshStream,
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              );
+            }
+        
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+        
+        //           if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+        //   return ListView(
+        //     children: snapshot.data!.docs.map((doc) {
+        //       final data = doc.data() as Map<String, dynamic>;
+        //       final time = (data['timeStamp'] as Timestamp).toDate();
+        //       final formattedTime = DateFormat.yMd().add_jm().format(time);
+        
+        //       return ListTile(
+        //         leading: Icon(Icons.phone),
+        //         title: Text('Contact ID: ${data['contactID']}'),
+        //         subtitle: Text('Status: ${data['callStatus']}'),
+        //         trailing: Text(formattedTime),
+        //       );
+        //     }).toList(),
+        //   );
+        // }
+        
+            debugPrint('Documents found: ${snapshot.data!.docs.length}');
+            
+            return ListView.builder(
+              padding: const EdgeInsets.all(8),
+              itemCount: snapshot.data!.docs.length,
+              itemBuilder: (context, index) {
+                final doc = snapshot.data!.docs[index];
+                final data = doc.data() as Map<String, dynamic>;
+                debugPrint('Document $index data: $data');
                 
-                return FutureBuilder<DocumentSnapshot>(
-                  future: FirebaseFirestore.instance
-                      .collection('EmergencyContacts')
-                      .doc(history.contactID)
-                      .get(),
-                  builder: (context, contactSnapshot) {
-                    if (contactSnapshot.connectionState == ConnectionState.waiting) {
-                      return _buildLoadingTile(history);
-                    }
-
-                    if (contactSnapshot.hasError) {
-                      return _buildErrorTile(history);
-                    }
-
-                    return _buildCallHistoryTile(history, contactSnapshot.data);
-                  },
-                );
-              } catch (e) {
-                debugPrint('Error parsing document: $e');
-                return ListTile(
-                  title: const Text('Invalid data format'),
-                  subtitle: Text('Document ID: ${doc.id}'),
-                );
-              }
-            },
-          );
-        },
+                try {
+                  final history = CallHistory.fromMap(doc.id, data);
+                  
+                  return FutureBuilder<DocumentSnapshot>(
+                    future: FirebaseFirestore.instance
+                        .collection('EmergencyContacts')
+                        .doc(history.contactID)
+                        .get(),
+                    builder: (context, contactSnapshot) {
+                      if (contactSnapshot.connectionState == ConnectionState.waiting) {
+                        return _buildLoadingTile(history);
+                      }
+        
+                      if (contactSnapshot.hasError) {
+                        return _buildErrorTile(history);
+                      }
+        
+                      return _buildCallHistoryTile(history, contactSnapshot.data);
+                    },
+                  );
+                } catch (e) {
+                  debugPrint('Error parsing document: $e');
+                  return ListTile(
+                    title: const Text('Invalid data format'),
+                    subtitle: Text('Document ID: ${doc.id}'),
+                  );
+                }
+              },
+            );
+          },
+        ),
       ),
     );
   }

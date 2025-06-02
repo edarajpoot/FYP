@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:login/database_service.dart';
 import 'package:login/model/usermodel.dart';
+import 'package:login/screens/ChangePasswordScreen.dart';
 import 'package:login/screens/backgroungServices.dart';
 import 'package:login/screens/editprofile.dart';
 import 'package:login/screens/login.dart';
@@ -27,7 +28,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     _currentUser = widget.user; // Initialize _currentUser with widget.user
+    _loadEmergencyMode(); 
   }
+
+  void _loadEmergencyMode() async {
+  final doc = await FirebaseFirestore.instance
+      .collection('USERS')
+      .doc(widget.user.id)
+      .get();
+
+  if (doc.exists) {
+    final data = doc.data()!;
+    setState(() {
+      _isEmergencyMode = data['emergencyMode'] ?? true;
+    });
+  }
+}
 
   Future<void> signout() async {
     await FirebaseAuth.instance.signOut();
@@ -127,7 +143,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: ListView(
                 children: [
                   _buildSettingItem(
-                    title: "Edit",
+                    title: "Edit Name",
+                    onTap: () async {
+                      final updatedUser = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EditProfileScreen(user: widget.user),
+                        ),
+                      );
+
+                      if (updatedUser != null) {
+                        setState(() {
+                          _currentUser = updatedUser;
+                        });
+                      }
+                    },
+                  ),
+                  _buildSettingItem(
+                    title: "Change Password",
+                    onTap: () async {
+                      final updatedUser = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChangePasswordScreen(),
+                        ),
+                      );
+
+                      if (updatedUser != null) {
+                        setState(() {
+                          _currentUser = updatedUser;
+                        });
+                      }
+                    },
+                  ),
+                  _buildSettingItem(
+                    title: "Change Number",
                     onTap: () async {
                       final updatedUser = await Navigator.push(
                         context,

@@ -1,3 +1,4 @@
+import 'package:call_log/call_log.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
@@ -6,26 +7,26 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:login/model/callHistoryModel.dart';
+import 'package:login/screens/ChangePasswordScreen.dart';
 import 'package:login/screens/splash.dart';
 import 'package:login/util/emergency.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'firebase_options.dart';
 
-final AudioPlayer _player = AudioPlayer();
+// final AudioPlayer _player = AudioPlayer();
 String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
 
-Future<void> _playBackAudio() async {
-  try {
-  // 👇 asset file se load aur play
-    await _player.setAsset('assets/audio/Audio.mp3');
-    _player.play();
-    print('Audio played!');
-  } catch (e) {
-    print('Error playing audio: $e');
-  }
-}
+// Future<void> _playBackAudio() async {
+//   try {
+//   // 👇 asset file se load aur play
+//     await _player.setAsset('assets/audio/Audio.mp3');
+//     _player.play();
+//     print('Audio played!');
+//   } catch (e) {
+//     print('Error playing audio: $e');
+//   }
+// }
 
 Future<void> _makePhoneCall(String phoneNumber) async {
   final status = await Permission.phone.status;
@@ -36,7 +37,7 @@ Future<void> _makePhoneCall(String phoneNumber) async {
       return;
     }
   }
-  await saveCallToFirestore(phoneNumber,userId,"accepted");
+  await saveCallToFirestore(phoneNumber,userId,);
   await FlutterPhoneDirectCaller.callNumber(phoneNumber);
   await Future.delayed(Duration(seconds: 10));
   // _playBackAudio();
@@ -62,8 +63,7 @@ Future<String?> getContactIdByNumber(String number, String userId,) async {
   }
 }
 
-
-Future<void> saveCallToFirestore(String number, String userId, String status) async {
+Future<void> saveCallToFirestore(String number, String userId) async {
   try {
     debugPrint('Saving call history for $number (User: $userId)');
     
@@ -72,23 +72,47 @@ Future<void> saveCallToFirestore(String number, String userId, String status) as
       debugPrint('⚠️ No contact found for number: $number');
       return;
     }
-    
+
+    // Fetch the latest call log for this number
+    final Iterable<CallLogEntry> callLogs = await CallLog.query(
+      dateFrom: DateTime.now().subtract(Duration(minutes: 1)).millisecondsSinceEpoch,
+      number: number,
+    );
+
+    String callStatus = "unknown";
+    if (callLogs.isNotEmpty) {
+      callStatus = _getCallStatusFromLog(callLogs.first); // Use the helper
+    }
+
     final history = CallHistory(
       userID: userId,
       contactID: contactId,
       timeStamp: DateTime.now(),
-      callStatus: status,
+      callStatus: callStatus,
     );
 
-    final docRef = await FirebaseFirestore.instance
+    await FirebaseFirestore.instance
         .collection('CallHistory')
         .add(history.toMap());
     
-    debugPrint('✅ Call saved successfully. ID: ${docRef.id}');
-    debugPrint('📄 Document data: ${history.toMap()}');
+    debugPrint('✅ Call saved successfully. Status: $callStatus');
   } catch (e, stack) {
     debugPrint('❌ Error saving call history: $e');
     debugPrint('Stack trace: $stack');
+  }
+}
+
+// Helper to convert CallLogEntry.callType to a status string
+String _getCallStatusFromLog(CallLogEntry call) {
+  switch (call.callType) {
+    case CallType.incoming:
+      return (call.duration ?? 0) > 0 ? "accepted" : "missed";
+    case CallType.missed:
+      return "missed";
+    case CallType.rejected:
+      return "rejected";
+    default:
+      return "unknown";
   }
 }
 
@@ -184,7 +208,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home:SplashScreen()
+      home:ChangePasswordScreen()
     );
   }
 }
