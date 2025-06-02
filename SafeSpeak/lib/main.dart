@@ -8,7 +8,6 @@ import 'package:flutter_phone_direct_caller/flutter_phone_direct_caller.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:login/model/callHistoryModel.dart';
-import 'package:login/screens/ChangePasswordScreen.dart';
 import 'package:login/screens/splash.dart';
 import 'package:login/util/emergency.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -208,7 +207,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home:ChangePasswordScreen()
+      home:SplashScreen()
     );
   }
 }

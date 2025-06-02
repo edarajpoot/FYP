@@ -2,11 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:login/database_service.dart';
 import 'package:login/model/usermodel.dart';
+import 'package:login/navigation.dart';
 import 'package:login/screens/ChangePasswordScreen.dart';
+import 'package:login/screens/ChangeUserName.dart';
+import 'package:login/screens/EditPhoneNum.dart';
 import 'package:login/screens/backgroungServices.dart';
-import 'package:login/screens/editprofile.dart';
 import 'package:login/screens/login.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -106,7 +110,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             SizedBox(width: 16),
             Container(
-              height: 100,
+              height: 120,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -119,6 +123,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: Color.fromRGBO(37, 66, 43, 1),
                     ),
                   ),
+
                   SizedBox(height: 4),
                   Text(
                     updatedUser.email,
@@ -127,6 +132,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: Color.fromRGBO(37, 66, 43, 1),
                     ),
                   ),
+
+                  SizedBox(height: 4),
+                  Text(
+                    updatedUser.phoneNo,
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Color.fromRGBO(37, 66, 43, 1),
+                    ),
+                  ),
+                  SizedBox(height: 4),
                 ],
               ),
             ),
@@ -142,6 +157,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Expanded(
               child: ListView(
                 children: [
+
+                  // Change the username
                   _buildSettingItem(
                     title: "Edit Name",
                     onTap: () async {
@@ -156,11 +173,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         setState(() {
                           _currentUser = updatedUser;
                         });
+                        final controller = Get.find<NavigationController>();
+                        controller.user.value = updatedUser;
                       }
                     },
                   ),
+
+                   // Change the user's phone number
                   _buildSettingItem(
-                    title: "Change Password",
+                    title: "Edit Number",
+                    onTap: () async {
+                      final updatedUser = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EditPhoneNumberScreen(user: widget.user),
+                        ),
+                      );
+
+                      if (updatedUser != null) {
+                        setState(() {
+                          _currentUser = updatedUser;
+                        });
+                      }
+                    },
+                  ),
+
+                  // Password Change
+                  _buildSettingItem(
+                    title: "Edit Password",
                     onTap: () async {
                       final updatedUser = await Navigator.push(
                         context,
@@ -176,23 +216,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       }
                     },
                   ),
-                  _buildSettingItem(
-                    title: "Change Number",
-                    onTap: () async {
-                      final updatedUser = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => EditProfileScreen(user: widget.user),
-                        ),
-                      );
 
-                      if (updatedUser != null) {
-                        setState(() {
-                          _currentUser = updatedUser;
-                        });
-                      }
-                    },
-                  ),
+                  // Toggle button for emergency mode
                   _buildSettingToggle(
                     title: "Emergency Mode",
                     value: _isEmergencyMode,

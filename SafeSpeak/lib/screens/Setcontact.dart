@@ -98,25 +98,61 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Add Emergency Contact",
-      style: TextStyle(
-        color: Color.fromRGBO(37, 66, 43, 1),
-      ),)),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: Padding(
+        padding: const EdgeInsets.only(top:30, left: 25.0),
+        child: Text("Add Emergency Contact",
+        style: TextStyle(
+          color: Color.fromRGBO(37, 66, 43, 1),
+          fontWeight: FontWeight.bold,
+          fontSize: 25,
+        ),),
+      )),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(labelText: "Contact Name"),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: _numberController,
-              keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(labelText: "Contact Number"),
-            ),
+            // TextField(
+            //   controller: _nameController,
+            //   decoration: const InputDecoration(labelText: "Contact Name"),
+            // ),
             const SizedBox(height: 20),
+            SizedBox(
+              width: 370,
+              height: 50,
+              child: TextFormField(
+                controller: _nameController,
+                decoration: InputDecoration(
+                  labelText: "Contact Name",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+                validator: (val) =>
+                  val == null || val.isEmpty ? 'Enter contact name' : null,
+              ),
+            ),
+
+            const SizedBox(height: 20),
+            SizedBox(
+              width: 370,
+              height: 50,
+              child: TextFormField(
+                controller: _numberController,
+                keyboardType: TextInputType.phone,
+                decoration: InputDecoration(
+                  labelText: "Contact Number",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+                validator: (val) =>
+                  val == null || val.isEmpty ? 'Enter contact name' : null,
+              ),
+            ),
+            const SizedBox(height: 30),
+            
             ElevatedButton(
               onPressed: addEmergencyContact,
               style: ElevatedButton.styleFrom(

@@ -79,7 +79,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Padding(
-          padding: const EdgeInsets.only(left: 25.0),
+          padding: const EdgeInsets.only(top:30, left: 25.0),
           child: Text("Change Password",
           style: TextStyle(
             color: Color.fromRGBO(37, 66, 43, 1),
@@ -88,122 +88,124 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           ),),
         )
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              // TextFormField(
-              //   controller: currentPasswordController,
-              //   obscureText: true,
-              //   decoration: InputDecoration(labelText: "Current Password"),
-              //   validator: (val) =>
-              //       val == null || val.isEmpty ? 'Enter current password' : null,
-              // ),
-
-              const SizedBox(height: 20),
-              SizedBox(
-                width: 370,
-                height: 50,
-                child: TextFormField(
-                  controller: currentPasswordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: "Current Password",
-                    hintText: "Enter Current Password",
-                    hintStyle: TextStyle(color: Color.fromRGBO(37, 66, 43, 0.8)),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
-                  validator: (val) =>
-                    val == null || val.isEmpty ? 'Enter current password' : null,
-                ),
-              ),
-
-
-              
-              // SizedBox(height: 12),
-              // TextFormField(
-              //   controller: newPasswordController,
-              //   obscureText: true,
-              //   decoration: InputDecoration(labelText: "New Password"),
-              //   validator: (val) =>
-              //       val == null || val.length < 6 ? 'Password must be 6+ chars' : null,
-              // ),
-
-
-              const SizedBox(height: 20),
-              SizedBox(
-                width: 370,
-                height: 50,
-                child: TextFormField(
-                  controller: newPasswordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: "New Password",
-                    hintText: "Enter New Password",
-                    hintStyle: TextStyle(color: Color.fromRGBO(37, 66, 43, 0.8)),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
-                  validator: (val) =>
-                    val == null || val.length < 6 ? 'Password must be 6+ chars' : null,
-                ),
-              ),
-
-
-
-              const SizedBox(height: 20),
-              SizedBox(
-                width: 370,
-                height: 50,
-                child: TextFormField(
-                  controller: confirmPasswordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: "Confirm New Password",
-                    hintText: "Re-enter New Password",
-                    hintStyle: TextStyle(color: Color.fromRGBO(37, 66, 43, 0.8)),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
-                  validator: (val) =>
-                    val != newPasswordController.text ? 'Passwords do not match' : null,
-                ),
-              ),
-              // TextFormField(
-              //   controller: confirmPasswordController,
-              //   obscureText: true,
-              //   decoration: InputDecoration(labelText: "Confirm New Password"),
-              //   validator: (val) =>
-              //       val != newPasswordController.text ? 'Passwords do not match' : null,
-              // ),
-              SizedBox(height: 70),
-              _isLoading
-                  ? CircularProgressIndicator()
-                  : ElevatedButton(
-                      onPressed: _changePassword,
-                      style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromRGBO(37, 66, 43, 1),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 40, left: 16, right: 16),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                // TextFormField(
+                //   controller: currentPasswordController,
+                //   obscureText: true,
+                //   decoration: InputDecoration(labelText: "Current Password"),
+                //   validator: (val) =>
+                //       val == null || val.isEmpty ? 'Enter current password' : null,
+                // ),
+        
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: 370,
+                  height: 50,
+                  child: TextFormField(
+                    controller: currentPasswordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: "Current Password",
+                      hintText: "Enter Current Password",
+                      hintStyle: TextStyle(color: Color.fromRGBO(37, 66, 43, 0.8)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 12),
                     ),
-                      child: const Text(
-                        'Change Password',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                    validator: (val) =>
+                      val == null || val.isEmpty ? 'Enter current password' : null,
+                  ),
+                ),
+        
+        
+                
+                // SizedBox(height: 12),
+                // TextFormField(
+                //   controller: newPasswordController,
+                //   obscureText: true,
+                //   decoration: InputDecoration(labelText: "New Password"),
+                //   validator: (val) =>
+                //       val == null || val.length < 6 ? 'Password must be 6+ chars' : null,
+                // ),
+        
+        
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: 370,
+                  height: 50,
+                  child: TextFormField(
+                    controller: newPasswordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: "New Password",
+                      hintText: "Enter New Password",
+                      hintStyle: TextStyle(color: Color.fromRGBO(37, 66, 43, 0.8)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                    validator: (val) =>
+                      val == null || val.length < 6 ? 'Password must be 6+ chars' : null,
+                  ),
+                ),
+        
+        
+        
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: 370,
+                  height: 50,
+                  child: TextFormField(
+                    controller: confirmPasswordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: "Confirm New Password",
+                      hintText: "Re-enter New Password",
+                      hintStyle: TextStyle(color: Color.fromRGBO(37, 66, 43, 0.8)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                    validator: (val) =>
+                      val != newPasswordController.text ? 'Passwords do not match' : null,
+                  ),
+                ),
+                // TextFormField(
+                //   controller: confirmPasswordController,
+                //   obscureText: true,
+                //   decoration: InputDecoration(labelText: "Confirm New Password"),
+                //   validator: (val) =>
+                //       val != newPasswordController.text ? 'Passwords do not match' : null,
+                // ),
+                SizedBox(height: 60),
+                _isLoading
+                    ? CircularProgressIndicator()
+                    : ElevatedButton(
+                        onPressed: _changePassword,
+                        style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromRGBO(37, 66, 43, 1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 12),
+                      ),
+                        child: const Text(
+                          'Change Password',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                    ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

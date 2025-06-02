@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:login/model/contactModel.dart';
 import 'package:login/model/keywordModel.dart';
 import 'package:login/screens/backgroungServices.dart';
@@ -66,16 +67,17 @@ Future<void> _requestMicrophonePermission() async {
 
   @override
   void initState() {
-    userName = widget.user.name;
     getRandomQuote();
     _requestMicrophonePermission();
     super.initState();
-    if (widget.user.emergencyMode == true) {
-    print("service Initialize");
-    initializeService(widget.contacts, widget.allKeywords);
-  } else {
-    print("Emergency mode is OFF, service not initialized.");
-  }
+  //   if (widget.user.emergencyMode == true) {
+  //   print("service Initialize");
+  //   initializeService(widget.contacts, widget.allKeywords);
+  // } if (widget.user.emergencyMode == true) {
+  //   FlutterBackgroundService().invoke('stopService');
+  // }
+
+  initializeService(widget.contacts, widget.allKeywords);
 }
 
 
@@ -97,7 +99,7 @@ Future<void> _requestMicrophonePermission() async {
         automaticallyImplyLeading: false,
         title: Padding(
           padding: const EdgeInsets.only(left: 25.0),
-          child: Text("Welcome, $userName",
+          child: Text("Welcome, ${widget.user.name}",
           style: TextStyle(
             color: Color.fromRGBO(37, 66, 43, 1),
             fontWeight: FontWeight.bold,

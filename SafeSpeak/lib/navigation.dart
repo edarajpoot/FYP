@@ -24,7 +24,7 @@ class MyNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(NavigationController(
-      user: user,
+      initialUser: user,
       allKeywords: allKeywords,
       contacts: contacts,
     ));
@@ -49,7 +49,7 @@ class MyNavigationBar extends StatelessWidget {
         color: controller.selectedIndex.value == 0 ? Colors.white : const Color.fromRGBO(37, 66, 43, 1),
       ),
       Icon(
-        Icons.search,
+        Icons.list,
         size: 30,
         color: controller.selectedIndex.value == 1 ? Colors.white : const Color.fromRGBO(37, 66, 43, 1),
       ),
@@ -74,18 +74,27 @@ class MyNavigationBar extends StatelessWidget {
 
 class NavigationController extends GetxController {
   final Rx<int> selectedIndex = 0.obs;
+  final Rx<UserModel> user;
+  final List<KeywordModel> allKeywords;
+  final List<ContactModel> contacts;
+
   late final List<Widget> screens;
 
   NavigationController({
-    required UserModel user,
-    required List<KeywordModel> allKeywords,
-    required List<ContactModel> contacts,
-  }) {
-    screens = [
-      HomePage(user: user, allKeywords: allKeywords, contacts: contacts),
-      AllKeywords(user: user),
-      CallHistoryScreen(),
-      ProfileScreen(user: user),
-    ];
-  }
+  required UserModel initialUser,
+  required this.allKeywords,
+  required this.contacts,
+}) : user = initialUser.obs {
+  screens = [
+    Obx(() => HomePage(
+          user: user.value,
+          allKeywords: allKeywords,
+          contacts: contacts,
+        )),
+    AllKeywords(user: user.value),
+    CallHistoryScreen(),
+    Obx(() => ProfileScreen(user: user.value)),
+  ];
+}
+
 }

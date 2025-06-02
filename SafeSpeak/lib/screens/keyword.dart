@@ -174,7 +174,11 @@ class _SetKeywordScreenState extends State<SetKeywordScreen> {
                     child: 
                      TextField(
                       controller: _keywordController,
-                      decoration: const InputDecoration(labelText: "Enter Keyword"),
+                      decoration: InputDecoration(
+                        labelText: "Enter Keyword",
+                        border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),),
                       ),
                   ),
 
@@ -225,7 +229,6 @@ class _SetKeywordScreenState extends State<SetKeywordScreen> {
 
 
                   const SizedBox(height: 40),
-
                   ElevatedButton(
                     onPressed: saveKeyword,
                     style: ElevatedButton.styleFrom(
