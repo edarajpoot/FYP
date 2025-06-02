@@ -3,7 +3,7 @@ class UserModel {
   final String name;
   final String email;
   final String phoneNo;
-  final bool emergencyMode;
+  bool emergencyMode;
   final String password;
 
   UserModel({

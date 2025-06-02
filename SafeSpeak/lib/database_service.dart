@@ -4,7 +4,6 @@ import 'package:login/model/contactModel.dart';
 import 'package:login/model/keywordModel.dart';
 import 'package:login/model/usermodel.dart';
 import 'package:login/screens/Recordedvoice.dart';
-import 'package:login/screens/history.dart';
 import 'package:login/screens/signup.dart';
 
 class DatabaseService {
@@ -74,6 +73,13 @@ class DatabaseService {
       print("Error saving user: $e");
     }
   }
+
+  Future<void> updateEmergencyMode(String userId, bool mode) async {
+  await FirebaseFirestore.instance.collection('USERS').doc(userId).update({
+    'emergencyMode': mode,
+  });
+}
+
 
   Future<UserModel?> getUserData(String userId) async {
   try {

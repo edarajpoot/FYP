@@ -151,6 +151,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         _isEmergencyMode = value;
                       });
 
+                      // Update Firebase Firestore field
+                      await FirebaseFirestore.instance.collection('USERS').doc(widget.user.id).update({
+                        'emergencyMode': value,
+                      });
+
                       if (!value) {
                         FlutterBackgroundService().invoke('stopService');
                       } else {

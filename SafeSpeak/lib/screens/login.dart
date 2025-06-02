@@ -86,6 +86,9 @@ Future<void> _fetchUserDataAndInitializeService(String userId) async {
   }
 
   if (userData != null && keywordDataList.isNotEmpty) {
+    userData.emergencyMode = true; 
+    await dbService.updateEmergencyMode(userId, true); // update Firebase
+
     await initializeService(contacts, keywordDataList);
     Navigator.pushReplacement(
       context,

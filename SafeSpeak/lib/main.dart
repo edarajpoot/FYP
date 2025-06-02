@@ -8,7 +8,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:login/model/callHistoryModel.dart';
-import 'package:login/screens/history.dart';
 import 'package:login/screens/splash.dart';
 import 'package:login/util/emergency.dart';
 import 'package:permission_handler/permission_handler.dart';

@@ -35,7 +35,17 @@ class _CallHistoryScreenState extends State<CallHistoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Call History'),
+        automaticallyImplyLeading: false,
+        title: Padding(
+          padding: const EdgeInsets.only(left: 25.0),
+          child: const Text('Call History',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Color.fromRGBO(37, 66, 43, 1),
+              fontSize: 25,
+            ),
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -72,22 +82,22 @@ class _CallHistoryScreenState extends State<CallHistoryScreen> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-  return ListView(
-    children: snapshot.data!.docs.map((doc) {
-      final data = doc.data() as Map<String, dynamic>;
-      final time = (data['timeStamp'] as Timestamp).toDate();
-      final formattedTime = DateFormat.yMd().add_jm().format(time);
+//           if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+//   return ListView(
+//     children: snapshot.data!.docs.map((doc) {
+//       final data = doc.data() as Map<String, dynamic>;
+//       final time = (data['timeStamp'] as Timestamp).toDate();
+//       final formattedTime = DateFormat.yMd().add_jm().format(time);
 
-      return ListTile(
-        leading: Icon(Icons.phone),
-        title: Text('Contact ID: ${data['contactID']}'),
-        subtitle: Text('Status: ${data['callStatus']}'),
-        trailing: Text(formattedTime),
-      );
-    }).toList(),
-  );
-}
+//       return ListTile(
+//         leading: Icon(Icons.phone),
+//         title: Text('Contact ID: ${data['contactID']}'),
+//         subtitle: Text('Status: ${data['callStatus']}'),
+//         trailing: Text(formattedTime),
+//       );
+//     }).toList(),
+//   );
+// }
 
           debugPrint('Documents found: ${snapshot.data!.docs.length}');
           
@@ -150,31 +160,66 @@ class _CallHistoryScreenState extends State<CallHistoryScreen> {
   }
 
   Widget _buildCallHistoryTile(CallHistory history, DocumentSnapshot? contactData) {
-    final contact = contactData?.data() as Map<String, dynamic>?;
-    final contactName = contact?['contactName'] ?? 'Unknown';
-    final contactNumber = contact?['contactNumber'] ?? '';
+  final contact = contactData?.data() as Map<String, dynamic>?;
+  final contactName = contact?['contactName'] ?? 'Unknown';
+  final contactNumber = contact?['contactNumber'] ?? '';
 
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      child: ListTile(
-        leading: const Icon(Icons.call, color: Colors.blue),
-        title: Text(contactName),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(contactNumber),
-            Text(
-              DateFormat('MMM dd, yyyy - hh:mm a').format(history.timeStamp),
+  final isAccepted = history.callStatus.toLowerCase() == 'accepted';
+
+  return Card(
+    margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(16),
+    ),
+    color: Colors.grey[200],
+    elevation: 2,
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center, 
+        children: [
+          const Icon(Icons.call, color: Color.fromRGBO(37, 66, 43, 1)),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  contactName,
+                  style: const TextStyle(fontSize: 18, color: Color.fromRGBO(37, 66, 43, 1)),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  contactNumber,
+                  style: const TextStyle(fontSize: 14, color: Color.fromRGBO(37, 66, 43, 0.8)),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  DateFormat('MMM dd, yyyy - hh:mm a').format(history.timeStamp),
+                  style: const TextStyle(fontSize: 12, color: Color.fromRGBO(37, 66, 43, 0.8)),
+                ),
+              ],
             ),
-          ],
-        ),
-        trailing: Chip(
-          label: Text(history.callStatus.toUpperCase()),
-          backgroundColor: history.callStatus == 'accepted'
-              ? Colors.green.withOpacity(0.2)
-              : Colors.red.withOpacity(0.2),
-        ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: isAccepted ? Colors.green.withOpacity(0.15) : Colors.red.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              history.callStatus.toUpperCase(),
+              style: TextStyle(
+                color: isAccepted ? Colors.green : Colors.red,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
+
 }

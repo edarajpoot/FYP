@@ -331,7 +331,7 @@ class _NewKeywordState extends State<AllKeywords> with SingleTickerProviderState
                 TabBar(
                   controller: _tabController,
                   indicatorColor: Color.fromRGBO(37, 66, 43, 1), // WhatsApp green
-                  labelColor: Color.fromRGBO(37, 66, 43, 1), // WhatsApp green
+                  labelColor: Color.fromRGBO(37, 66, 43, 1),
                   unselectedLabelColor: Colors.grey[600],
                   indicatorSize: TabBarIndicatorSize.tab,
                   isScrollable: false,

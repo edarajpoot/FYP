@@ -6,7 +6,7 @@ import 'package:login/model/keywordModel.dart';
 import 'package:login/model/usermodel.dart';
 import 'package:login/screens/HistoryScreen.dart';
 import 'package:login/screens/home.dart';
-import 'package:login/screens/newKeyword.dart';
+import 'package:login/screens/allKeywords.dart';
 import 'package:login/screens/settings.dart';
 
 class MyNavigationBar extends StatelessWidget {
