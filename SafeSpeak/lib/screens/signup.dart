@@ -26,6 +26,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController phoneNoController = TextEditingController();
   final TextEditingController emergencyModeController = TextEditingController();
+  String? nameError;
+  String? phoneError;
+  String? emailError;
+
+
 
   bool _isLoading = false;
 
@@ -202,29 +207,79 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   const SizedBox(height: 20),
 
                   SizedBox(
-                    width: 370,
-                    height: 50,
-                    child: TextField(
-                      controller: nameController,
-                      decoration: InputDecoration(
-                        labelText: "Name",
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
-                        prefixIcon: const Icon(Icons.person),
-                      ),
-                    ),
-                  ),
+                   width: 370,
+                   height: 60,
+                   child: TextField(
+                     controller: nameController,
+                     decoration: InputDecoration(
+                      labelText: "Name",
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+                       prefixIcon: const Icon(Icons.person),
+                       errorText: nameError,
+                     ),
+                     onChanged: (value) {
+                       final nameRegExp = RegExp(r'^[a-zA-Z\s]+$');
+                       setState(() {
+                         if (value.isEmpty || nameRegExp.hasMatch(value)) {
+                           nameError = null;
+                         } else {
+                           nameError = 'Only alphabets are allowed';
+                         }
+                       });
+                     },
+                   ),
+                 ),
+
 
                   const SizedBox(height: 10),
-
                   SizedBox(
                     width: 370,
-                    height: 50,
+                    height: 60,
                     child: TextField(
                       controller: phoneNoController,
                       decoration: InputDecoration(
                         labelText: "Phone No",
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
                         prefixIcon: const Icon(Icons.phone),
+                        errorText: phoneError,
+                      ),
+                      keyboardType: TextInputType.phone,
+                      onChanged: (value) {
+                        final phoneRegExp = RegExp(r'^[0-9]+$');
+                        setState(() {
+                          if (value.isEmpty || phoneRegExp.hasMatch(value)) {
+                            phoneError = null;
+                          } else {
+                            phoneError = 'Only digits are allowed';
+                          }
+                        });
+                      },
+                    ),
+                  ),
+
+
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: 370,
+                    height: 60,
+                    child: TextField(
+                      controller: emailController,
+                      onChanged: (value) {
+                        if (!RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$").hasMatch(value)) {
+                          setState(() {
+                            emailError = "Please enter a valid email address.";
+                          });
+                        } else {
+                          setState(() {
+                            emailError = null;
+                          });
+                        }
+                      },
+                      decoration: InputDecoration(
+                        labelText: "Email",
+                        errorText: emailError,
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+                        prefixIcon: const Icon(Icons.email),
                       ),
                     ),
                   ),
@@ -232,20 +287,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   const SizedBox(height: 10),
                   SizedBox(
                     width: 370,
-                    height: 50,
-                    child: TextField(
-                      controller: emailController,
-                      decoration: InputDecoration(
-                        labelText: "Email",
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
-                        prefixIcon: const Icon(Icons.email),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  SizedBox(
-                    width: 370,
-                    height: 50,
+                    height: 60,
                     child: TextField(
                       controller: passwordController,
                       obscureText: true,
