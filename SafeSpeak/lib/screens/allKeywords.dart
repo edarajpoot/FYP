@@ -493,143 +493,169 @@ Future<List<Contact>> getContacts() async {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add New Keyword'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: addKeyword,
-          ),
-        ],
+        automaticallyImplyLeading: false,
+          title: Padding(
+          padding: const EdgeInsets.only(top:30, left: 25.0),
+          child: Text("Add new Keyword",
+          style: TextStyle(
+            color: Color.fromRGBO(37, 66, 43, 1),
+            fontWeight: FontWeight.bold,
+            fontSize: 25,
+          ),),
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: keywordController,
-              decoration: InputDecoration(
-                labelText: 'Enter new keyword',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            const SizedBox(height: 20,),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Set Priority:",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color.fromRGBO(37, 66, 43, 1)),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 40, left: 16, right: 16),
+          child: Column(
+            children: [
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: 370,
+                  height: 50,
+                  child: TextFormField(
+                    controller: keywordController,
+                    decoration: InputDecoration(
+                      labelText: "Enter new keyword",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
                       ),
-                      const SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Radio<String>(
-                            value: "high",
-                            groupValue: selectedPriority,
-                            activeColor: Color.fromRGBO(37, 66, 43, 1),
-                            onChanged: (value) {
-                              setState(() {
-                                selectedPriority = value!;
-                              });
-                            },
-                          ),
-                          const Text("High",
-                          style: TextStyle(
-                            color: Color.fromRGBO(37, 66, 43, 1)
-                          ),),
-                          const SizedBox(width: 20),
-                          Radio<String>(
-                            value: "low",
-                            groupValue: selectedPriority,
-                            activeColor: Color.fromRGBO(37, 66, 43, 1),
-                            onChanged: (value) {
-                              setState(() {
-                                selectedPriority = value!;
-                              });
-                            },
-                          ),
-                          const Text("Low",
-                          style: TextStyle(
-                            color: Color.fromRGBO(37, 66, 43, 1)
-                          ),),
-                        ],
-                      ),
-                    ],
-                  ),
-
-            // ElevatedButton(
-            //   onPressed: addKeyword,
-            //   child: const Text('Add Keyword'),
-            // ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-            onPressed: () async {
-              if (keywordController.text.isEmpty) return;
-
-              try {
-                // First, add the keyword and get its ID
-                var keywordRef = await FirebaseFirestore.instance.collection('EmergencyAlertKeyword').add({
-                  'userID': widget.user.id,
-                  'voiceText': keywordController.text,
-                  'priority': selectedPriority.toLowerCase(),
-                });
-
-                String newKeywordID = keywordRef.id;
-          
-                // Show success message
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Keyword added successfully!')),
-                );
-
-                // Fetch contacts
-                List<Contact> contacts = await getContacts();
-
-                // Navigate to contact selection screen with correct keyword ID
-                final selectedContact = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ContactsListScreen(
-                      contacts: contacts,
-                      keywordID: newKeywordID, // ✅ CORRECT keyword ID
                     ),
+                    validator: (val) =>
+                      val == null || val.isEmpty ? 'Enter a Keyword' : null,
                   ),
-                );
-                
-
-                // Optional: Show selected contact name
-                if (selectedContact != null) {
+                ),
+      
+              const SizedBox(height: 25),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Set Priority:",
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color.fromRGBO(37, 66, 43, 1)),
+                        ),
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Radio<String>(
+                              value: "high",
+                              groupValue: selectedPriority,
+                              activeColor: Color.fromRGBO(37, 66, 43, 1),
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedPriority = value!;
+                                });
+                              },
+                            ),
+                            const Text("High",
+                            style: TextStyle(
+                              color: Color.fromRGBO(37, 66, 43, 1)
+                            ),),
+                            const SizedBox(width: 20),
+                            Radio<String>(
+                              value: "low",
+                              groupValue: selectedPriority,
+                              activeColor: Color.fromRGBO(37, 66, 43, 1),
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedPriority = value!;
+                                });
+                              },
+                            ),
+                            const Text("Low",
+                            style: TextStyle(
+                              color: Color.fromRGBO(37, 66, 43, 1)
+                            ),),
+                          ],
+                        ),
+                      ],
+                    ),
+        
+              // ElevatedButton(
+              //   onPressed: addKeyword,
+              //   child: const Text('Add Keyword'),
+              // ),
+              const SizedBox(height: 30),
+              ElevatedButton(
+              onPressed: () async {
+                if (keywordController.text.isEmpty) return;
+        
+                try {
+                  // First, add the keyword and get its ID
+                  var keywordRef = await FirebaseFirestore.instance.collection('EmergencyAlertKeyword').add({
+                    'userID': widget.user.id,
+                    'voiceText': keywordController.text,
+                    'priority': selectedPriority.toLowerCase(),
+                  });
+        
+                  String newKeywordID = keywordRef.id;
+            
+                  // Show success message
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Selected contact: ${selectedContact["contactName"]}')),
+                    const SnackBar(content: Text('Keyword added successfully!')),
                   );
+        
+                  // Fetch contacts
+                  List<Contact> contacts = await getContacts();
+        
+                  // Navigate to contact selection screen with correct keyword ID
+                  final selectedContact = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ContactsListScreen(
+                        contacts: contacts,
+                        keywordID: newKeywordID, // ✅ CORRECT keyword ID
+                      ),
+                    ),
+                  );
+                  
+        
+                  // Optional: Show selected contact name
+                  if (selectedContact != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Selected contact: ${selectedContact["contactName"]}')),
+                    );
+        
+                    await FirebaseFirestore.instance.collection('EmergencyContacts').add({
+                    'userID': widget.user.id,
+                    "keywordID": newKeywordID,
+                    'contactName': selectedContact["contactName"],
+                    'contactNumber': selectedContact["contactNumber"],
+                  });
+        
+                  }          
+        
+        
+        
+                  keywordController.clear();
+        
+                } catch (e) {
+                  print('Error adding keyword and selecting contact: $e');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Something went wrong.')),
+                  );
+                }
+              },
 
-                  await FirebaseFirestore.instance.collection('EmergencyContacts').add({
-                  'userID': widget.user.id,
-                  "keywordID": newKeywordID,
-                  'contactName': selectedContact["contactName"],
-                  'contactNumber': selectedContact["contactNumber"],
-                });
-
-                }          
-
-
-
-                keywordController.clear();
-
-              } catch (e) {
-                print('Error adding keyword and selecting contact: $e');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Something went wrong.')),
-                );
-              }
-            },
-            child: const Text('Set Contact'),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromRGBO(37, 66, 43, 1),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 12),
+                 ),
+                   child: const Text(
+                    'Set Contact',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                   ),
+            ),
+        
+            ],
           ),
-
-          ],
         ),
       ),
     );

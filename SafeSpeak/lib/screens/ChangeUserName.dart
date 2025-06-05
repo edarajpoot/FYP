@@ -73,14 +73,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             key: _formKey,
             child: Column(
               children: [
-                // TextFormField(
-                //   controller: _nameController,
-                //   decoration: InputDecoration(labelText: "New Name"),
-                //   validator: (value) =>
-                //       value == null || value.isEmpty ? 'Enter a name' : null,
-                // ),
-
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
                 SizedBox(
                   width: 370,
                   height: 50,

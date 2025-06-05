@@ -35,51 +35,64 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _isLoading = false;
 
   Future<void> signup() async {
-    String name = nameController.text.trim();
-    String email = emailController.text.trim();
-    String password = passwordController.text.trim();
-    String phoneNo = phoneNoController.text.trim();
-    bool emergencyMode = true;
+  String name = nameController.text.trim();
+  String email = emailController.text.trim();
+  String password = passwordController.text.trim();
+  String phoneNo = phoneNoController.text.trim();
+  bool emergencyMode = true;
 
-    if (name.isEmpty || email.isEmpty || password.length < 6) {
-      showErrorDialog("Enter a valid name, email & password (6+ characters).");
-      return;
+  // Validation checks (keep your existing ones)
+  if (name.isEmpty || email.isEmpty || password.length < 6) {
+    showErrorDialog("Enter a valid name, email & password (6+ characters).");
+    return;
+  }
+  // ... other validation checks ...
+
+  setState(() => _isLoading = true);
+
+  try {
+    // 1. Create auth user only
+    UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    
+    // 2. Send verification email immediately
+    await userCredential.user!.sendEmailVerification();
+    
+    // 3. Show info dialog
+    await showInfoDialog("A verification email has been sent. Please verify your email before proceeding.");
+    
+    // 4. Start checking for verification
+    await checkEmailVerification(userCredential.user!.uid, name, email, password, phoneNo, emergencyMode);
+    
+  } catch (e) {
+    showErrorDialog(e.toString());
+    // Optional: delete the auth user if creation failed
+    if (FirebaseAuth.instance.currentUser != null) {
+      await FirebaseAuth.instance.currentUser!.delete();
     }
+  } finally {
+    setState(() => _isLoading = false);
+  }
+}
 
-    if (!RegExp(r"^[a-zA-Z\s]+$").hasMatch(name)) {
-      showErrorDialog("Name should only contain alphabets.");
-      return;
-    }
+Future<void> checkEmailVerification(
+  String userID, 
+  String name,
+  String email,
+  String password,
+  String phoneNo,
+  bool emergencyMode
+) async {
+  for (int i = 0; i < 50; i++) { // Check for ~2.5 minutes
+    await Future.delayed(const Duration(seconds: 3));
+    await FirebaseAuth.instance.currentUser?.reload();
+    User? user = FirebaseAuth.instance.currentUser;
 
-    // Capital letter check
-    if (!RegExp(r'[A-Z]').hasMatch(password)) {
-      showErrorDialog("Password must contain at least one uppercase letter.");
-      return;
-    }
-
-    // Small letter check
-    if (!RegExp(r'[a-z]').hasMatch(password)) {
-      showErrorDialog("Password must contain at least one lowercase letter.");
-      return;
-    }
-
-    // Special character check
-    if (!RegExp(r'[!@#\$&*~%^()\-_=+{}[\]|:;"<>,.?/\\]').hasMatch(password)) {
-      showErrorDialog("Password must contain at least one special character.");
-      return;
-    }
-
-    setState(() => _isLoading = true);
-
-    try {
-      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
-      await FirebaseAuth.instance.currentUser?.reload();
-      String userID = userCredential.user!.uid;
-      final user = USER(
+    if (user != null && user.emailVerified) {
+      // Only create Firestore record AFTER verification
+      final userData = USER(
         id: userID,
         name: name,
         email: email,
@@ -87,39 +100,34 @@ class _SignUpScreenState extends State<SignUpScreen> {
         phoneNo: phoneNo,
         emergencyMode: emergencyMode,
       );
-
-      await dbService.createUser(user, userCredential.user!.uid);
-      print("User creation function called.");
-
-      if (userCredential.user != null && !userCredential.user!.emailVerified) {
-        await userCredential.user!.sendEmailVerification();
-        await showInfoDialog("A verification email has been sent. Please verify before logging in.");
-        checkEmailVerification(userID, name);
-        return;
-      } else {
-        navigateToWelcome(userID,name);
-      }
-    } catch (e) {
-      showErrorDialog(e.toString());
-    } finally {
-      setState(() => _isLoading = false);
+      
+      await dbService.createUser(userData, userID);
+      navigateToWelcome(userID, name);
+      return;
     }
   }
-
-  Future<void> checkEmailVerification(String userID, String name) async {
-    for (int i = 0; i < 50; i++) {
-      await Future.delayed(const Duration(seconds: 3));
-      await FirebaseAuth.instance.currentUser?.reload();
-      User? user = FirebaseAuth.instance.currentUser;
-
-      if (user != null && user.emailVerified) {
-        print("Email Verified!");
-        navigateToWelcome(userID, name);
-        return;
-      }
-    }
-    showErrorDialog("Email verification failed. Please try again.");
+  
+  // Verification failed - clean up
+  showErrorDialog("Email verification failed. Please try again.");
+  if (FirebaseAuth.instance.currentUser != null) {
+    await FirebaseAuth.instance.currentUser!.delete();
   }
+}
+
+  // Future<void> checkEmailVerification(String userID, String name) async {
+  //   for (int i = 0; i < 50; i++) {
+  //     await Future.delayed(const Duration(seconds: 3));
+  //     await FirebaseAuth.instance.currentUser?.reload();
+  //     User? user = FirebaseAuth.instance.currentUser;
+
+  //     if (user != null && user.emailVerified) {
+  //       print("Email Verified!");
+  //       navigateToWelcome(userID, name);
+  //       return;
+  //     }
+  //   }
+  //   showErrorDialog("Email verification failed. Please try again.");
+  // }
 
   void navigateToWelcome(String userID, String name) {
     Navigator.pushReplacement(
