@@ -9,10 +9,10 @@
 -DCMAKE_ANDROID_NDK=C:\Users\DELL\AppData\Local\Android\Sdk\ndk\25.1.8937393
 -DCMAKE_TOOLCHAIN_FILE=C:\Users\DELL\AppData\Local\Android\Sdk\ndk\25.1.8937393\build\cmake\android.toolchain.cmake
 -DCMAKE_MAKE_PROGRAM=C:\Users\DELL\AppData\Local\Android\Sdk\cmake\3.22.1\bin\ninja.exe
--DCMAKE_LIBRARY_OUTPUT_DIRECTORY=C:\Users\DELL\flutter\SafeSpeak\build\app\intermediates\cxx\Debug\5g5f3v73\obj\x86_64
--DCMAKE_RUNTIME_OUTPUT_DIRECTORY=C:\Users\DELL\flutter\SafeSpeak\build\app\intermediates\cxx\Debug\5g5f3v73\obj\x86_64
+-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=C:\Users\DELL\flutter\login\build\app\intermediates\cxx\Debug\5g5f3v73\obj\x86_64
+-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=C:\Users\DELL\flutter\login\build\app\intermediates\cxx\Debug\5g5f3v73\obj\x86_64
 -DCMAKE_BUILD_TYPE=Debug
--BC:\Users\DELL\flutter\SafeSpeak\android\app\.cxx\Debug\5g5f3v73\x86_64
+-BC:\Users\DELL\flutter\login\android\app\.cxx\Debug\5g5f3v73\x86_64
 -GNinja
 -Wno-dev
 --no-warn-unused-cli

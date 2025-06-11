@@ -171,6 +171,9 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                 ),
               ),
             ),
+
+            const SizedBox(height: 10),
+
             ElevatedButton(
               onPressed: () async {
                 List<Contact> contacts = await getContacts();
@@ -197,7 +200,7 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 70, vertical: 12),
               ),
               child: const Text(
                 'Add from Phone',
@@ -208,6 +211,8 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                 ),
               ),
             ),
+
+            const SizedBox(height: 10),
 
             ElevatedButton(
               onPressed: () {
@@ -221,7 +226,7 @@ class _EmergencyContactScreenState extends State<EmergencyContactScreen> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 90, vertical: 12),
               ),
               child: const Text(
                 'Next',

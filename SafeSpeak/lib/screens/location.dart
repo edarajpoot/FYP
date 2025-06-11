@@ -13,7 +13,7 @@ Future<void> startLocationUpdates(String userID) async {
   if (!_serviceEnabled) {
     _serviceEnabled = await location.requestService();
     if (!_serviceEnabled) {
-      print("❌ Location service not enabled.");
+      print("Location service not enabled.");
       return;
     }
   }
@@ -23,12 +23,12 @@ Future<void> startLocationUpdates(String userID) async {
   if (_permissionGranted == PermissionStatus.denied) {
     _permissionGranted = await location.requestPermission();
     if (_permissionGranted != PermissionStatus.granted) {
-      print("❌ Location permission denied.");
+      print("Location permission denied.");
       return;
     }
   }
 
-  // Start periodic location updates every 10 seconds
+  // location updates every 30 seconds
   Timer.periodic(Duration(seconds: 30), (timer) async {
     await updateUserLocation(userID);
   });
@@ -57,9 +57,9 @@ Future<void> updateUserLocation(String userID) async {
       'timestamp': Timestamp.now(),
     });
 
-    print("📍 Location updated in Firestore.");
+    print("Location updated in Firestore.");
   } catch (e) {
-    print("❌ Error getting location: $e");
+    print("Error getting location: $e");
   }
 }
 

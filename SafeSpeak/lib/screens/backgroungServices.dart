@@ -17,28 +17,6 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterL
 
 const platform = MethodChannel('com.safespeak/audio');
 
-// Audio Service Implementation
-// final AudioPlayer _audioPlayer = AudioPlayer();
-// Future<void> _playAudio() async {
-//   try {
-//   // 👇 asset file se load aur play
-//     await _audioPlayer.setAsset('assets/audio/Audio.mp3');
-//     _audioPlayer.play();
-//     print('Audio played!');
-//   } catch (e) {
-//     print('Error playing audio: $e');
-//   }
-// }
-  
-//   Future<void> _stopAudio() async {
-//     try {
-//       await _audioPlayer.stop();
-//       print('⏹️ Audio stopped!');
-//     } catch (e) {
-//       print('❌ Error stopping audio: $e');
-//     }
-//   }
-
 
 // Method to invoke audio playback on the phone's background during the call
 Future<void> playAudioDuringCall(String filePath) async {
@@ -66,7 +44,6 @@ Future<void> initializeService(List<ContactModel> contacts, List<KeywordModel> k
   await Permission.location.request();
   await Permission.audio.request();
   await Permission.bluetooth.request();
-
 
   PermissionStatus microphoneStatus = await Permission.microphone.status;
   PermissionStatus phoneStatus = await Permission.phone.status;

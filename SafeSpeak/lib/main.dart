@@ -13,33 +13,20 @@ import 'package:login/util/emergency.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'firebase_options.dart';
 
-// final AudioPlayer _player = AudioPlayer();
 String userId = FirebaseAuth.instance.currentUser?.uid ?? '';
-
-// Future<void> _playBackAudio() async {
-//   try {
-//   // 👇 asset file se load aur play
-//     await _player.setAsset('assets/audio/Audio.mp3');
-//     _player.play();
-//     print('Audio played!');
-//   } catch (e) {
-//     print('Error playing audio: $e');
-//   }
-// }
 
 Future<void> _makePhoneCall(String phoneNumber) async {
   final status = await Permission.phone.status;
   if (!status.isGranted) {
     final result = await Permission.phone.request();
     if (!result.isGranted) {
-      print('❌ CALL_PHONE permission not granted');
+      print('CALL_PHONE permission not granted');
       return;
     }
   }
-  await saveCallToFirestore(phoneNumber,userId,);
   await FlutterPhoneDirectCaller.callNumber(phoneNumber);
-  await Future.delayed(Duration(seconds: 10));
-  // _playBackAudio();
+  await Future.delayed(Duration(seconds: 15));
+  await saveCallToFirestore(phoneNumber,userId,);
 }
 
 Future<String?> getContactIdByNumber(String number, String userId,) async {
@@ -47,11 +34,11 @@ Future<String?> getContactIdByNumber(String number, String userId,) async {
     QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection('EmergencyContacts')
         .where('contactNumber', isEqualTo: number)
-        .where('userID', isEqualTo: userId) // If you are storing user-wise contacts
+        .where('userID', isEqualTo: userId) 
         .get();
 
     if (snapshot.docs.isNotEmpty) {
-      return snapshot.docs.first.id; // Ye hi aapka contactID hai
+      return snapshot.docs.first.id;
     } else {
       print("Contact not found");
       return null;
@@ -65,53 +52,152 @@ Future<String?> getContactIdByNumber(String number, String userId,) async {
 Future<void> saveCallToFirestore(String number, String userId) async {
   try {
     debugPrint('Saving call history for $number (User: $userId)');
-    
     String? contactId = await getContactIdByNumber(number, userId);
     if (contactId == null) {
-      debugPrint('⚠️ No contact found for number: $number');
+      debugPrint('No contact found for number: $number');
       return;
     }
 
-    // Fetch the latest call log for this number
-    final Iterable<CallLogEntry> callLogs = await CallLog.query(
-      dateFrom: DateTime.now().subtract(Duration(minutes: 1)).millisecondsSinceEpoch,
-      number: number,
-    );
+    CallLogEntry? latestCall;
+    for (int i = 0; i < 5; i++) { // Try 5 times
+      final logs = await CallLog.query(
+        dateFrom: DateTime.now().subtract(Duration(minutes: 5)).millisecondsSinceEpoch,
+        number: number,
+      );
 
-    String callStatus = "unknown";
-    if (callLogs.isNotEmpty) {
-      callStatus = _getCallStatusFromLog(callLogs.first); // Use the helper
+      if (logs.isNotEmpty) {
+        final entry = logs.first;
+        // Check if the call has ended (has duration or call type)
+        if (entry.duration != null && entry.duration! > 0 || entry.callType != null) {
+          latestCall = entry;
+          break;
+        }
+      }
+
+      debugPrint('Waiting for call log update...');
+      await Future.delayed(Duration(seconds: 5));
     }
+
+    if (latestCall == null) {
+      debugPrint('No valid call log found for $number');
+      return;
+    }
+
+    String callStatus = _getCallStatusFromLog(latestCall);
 
     final history = CallHistory(
       userID: userId,
       contactID: contactId,
-      timeStamp: DateTime.now(),
+      timeStamp: latestCall.timestamp != null
+          ? DateTime.fromMillisecondsSinceEpoch(latestCall.timestamp!)
+          : DateTime.now(),
       callStatus: callStatus,
     );
 
-    await FirebaseFirestore.instance
-        .collection('CallHistory')
-        .add(history.toMap());
-    
-    debugPrint('✅ Call saved successfully. Status: $callStatus');
+    await FirebaseFirestore.instance.collection('CallHistory').add(history.toMap());
+    debugPrint('Call saved successfully. Status: $callStatus');
   } catch (e, stack) {
-    debugPrint('❌ Error saving call history: $e');
+    debugPrint('Error saving call history: $e');
     debugPrint('Stack trace: $stack');
   }
 }
 
-// Helper to convert CallLogEntry.callType to a status string
+
+// Future<void> saveCallToFirestore(String number, String userId) async {
+//   try {
+//     debugPrint('Saving call history for $number (User: $userId)');
+//     String? contactId = await getContactIdByNumber(number, userId);
+//     if (contactId == null) {
+//       debugPrint('No contact found for number: $number');
+//       return;
+//     }
+
+//     // Retry fetching call log up to 3 times
+//     CallLogEntry? latestCall;
+//     for (int i = 0; i < 3; i++) {
+//       final logs = await CallLog.query(
+//         dateFrom: DateTime.now().subtract(Duration(minutes: 5)).millisecondsSinceEpoch,
+//         number: number,
+//       );
+//       if (logs.isNotEmpty) {
+//         latestCall = logs.first;
+//         break;
+//       }
+//       await Future.delayed(Duration(seconds: 10)); 
+//     }
+
+//     if (latestCall == null) {
+//       debugPrint('No call log found for $number');
+//       return;
+//     }
+
+//     String callStatus = _getCallStatusFromLog(latestCall);
+
+//     final history = CallHistory(
+//       userID: userId,
+//       contactID: contactId,
+//       timeStamp: DateTime.now(),
+//       callStatus: callStatus,
+//     );
+
+//     await FirebaseFirestore.instance.collection('CallHistory').add(history.toMap());
+//     debugPrint('Call saved successfully. Status: $callStatus');
+//   } catch (e, stack) {
+//     debugPrint('Error saving call history: $e');
+//     debugPrint('Stack trace: $stack');
+//   }
+// }
+
+
+// Future<void> saveCallToFirestore(String number, String userId) async {
+//   try {
+//     debugPrint('Saving call history for $number (User: $userId)');
+    
+//     String? contactId = await getContactIdByNumber(number, userId);
+//     if (contactId == null) {
+//       debugPrint('No contact found for number: $number');
+//       return;
+//     }
+
+//     // Fetch the latest call log for this number
+//     final Iterable<CallLogEntry> callLogs = await CallLog.query(
+//       dateFrom: DateTime.now().subtract(Duration(minutes: 1)).millisecondsSinceEpoch,
+//       number: number,
+//     );
+
+//     String callStatus = "";
+//     if (callLogs.isNotEmpty) {
+//       callStatus = _getCallStatusFromLog(callLogs.first);
+//     }
+
+//     final history = CallHistory(
+//       userID: userId,
+//       contactID: contactId,
+//       timeStamp: DateTime.now(),
+//       callStatus: callStatus,
+//     );
+
+//     await FirebaseFirestore.instance
+//         .collection('CallHistory')
+//         .add(history.toMap());
+    
+//     debugPrint('Call saved successfully. Status: $callStatus');
+//   } catch (e, stack) {
+//     debugPrint('Error saving call history: $e');
+//     debugPrint('Stack trace: $stack');
+//   }
+// }
+
 String _getCallStatusFromLog(CallLogEntry call) {
   switch (call.callType) {
-    case CallType.incoming:
+    case CallType.outgoing:
       return (call.duration ?? 0) > 0 ? "accepted" : "missed";
     case CallType.missed:
       return "missed";
     case CallType.rejected:
       return "rejected";
     default:
-      return "unknown";
+      return "outgoing";
   }
 }
 
@@ -123,7 +209,7 @@ void main() async {
   
 
 
-  // Listen for call trigger from background service
+  // for high priority
   void setupBackgroundListeners() {
   FlutterBackgroundService().on('make-call').listen((event) async {
 
@@ -136,17 +222,14 @@ void main() async {
 
         if (contactNumber.isNotEmpty) {
 
-           // 👇 Bring service to foreground before sensitive actions
+           // Bring service to foreground before sensitive actions
           FlutterBackgroundService().invoke("setAsForeground");
 
-          print("📞 Calling from MAIN isolate: $contactNumber");
+          print("Calling from MAIN isolate: $contactNumber");
           await _makePhoneCall(contactNumber);
 
           print("Sending Message from MAIN isolate: $contactNumber");
-          sendSmsWithLocation(contactNumber, "🚨 This is an emergency! Please help.");
-          
-          //  // Play Audio After Call is initiated
-          // await platform.invokeMethod('playAudioDuringCall', {'filePath': 'assets/audio/recording.mp3'});
+          sendSmsWithLocation(contactNumber, "This is an emergency! Please help.");
 
           await Future.delayed(Duration(seconds: 5));
         }
@@ -154,7 +237,7 @@ void main() async {
     }
   });
 
-  // Handle location-only alerts (low priority)
+  // for low priority
   FlutterBackgroundService().on('send-location').listen((event) async {
     if (event != null && event['contacts'] != null) {
       List<dynamic> contacts = event['contacts'];
@@ -163,7 +246,7 @@ void main() async {
       for (var contact in contacts) {
         String contactNumber = contact['contactNumber'];
         if (contactNumber.isNotEmpty) {
-          print("📍 Sending location to: $contactNumber");
+          print("Sending location to: $contactNumber");
           sendSmsWithLocation(contactNumber, message);
         }
       }

@@ -151,7 +151,7 @@
 				}
 			],
 			"type" : "INTERNAL",
-			"value" : "d:/flutter/SafeSpeak/android/app/.cxx/Debug/3e5u6k5r/armeabi-v7a"
+			"value" : "d:/flutter/login/android/app/.cxx/Debug/3e5u6k5r/armeabi-v7a"
 		},
 		{
 			"name" : "CMAKE_CACHE_MAJOR_VERSION",
@@ -751,7 +751,7 @@
 				}
 			],
 			"type" : "UNINITIALIZED",
-			"value" : "D:\\flutter\\SafeSpeak\\build\\app\\intermediates\\cxx\\Debug\\3e5u6k5r\\obj\\armeabi-v7a"
+			"value" : "D:\\flutter\\login\\build\\app\\intermediates\\cxx\\Debug\\3e5u6k5r\\obj\\armeabi-v7a"
 		},
 		{
 			"name" : "CMAKE_LINKER",
@@ -1023,7 +1023,7 @@
 				}
 			],
 			"type" : "UNINITIALIZED",
-			"value" : "D:\\flutter\\SafeSpeak\\build\\app\\intermediates\\cxx\\Debug\\3e5u6k5r\\obj\\armeabi-v7a"
+			"value" : "D:\\flutter\\login\\build\\app\\intermediates\\cxx\\Debug\\3e5u6k5r\\obj\\armeabi-v7a"
 		},
 		{
 			"name" : "CMAKE_SHARED_LINKER_FLAGS",
@@ -1331,7 +1331,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "D:/flutter/SafeSpeak/android/app/.cxx/Debug/3e5u6k5r/armeabi-v7a"
+			"value" : "D:/flutter/login/android/app/.cxx/Debug/3e5u6k5r/armeabi-v7a"
 		},
 		{
 			"name" : "Project_IS_TOP_LEVEL",

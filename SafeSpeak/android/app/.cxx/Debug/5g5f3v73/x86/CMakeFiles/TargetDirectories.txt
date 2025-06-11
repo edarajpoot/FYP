@@ -1,2 +1,2 @@
-C:/Users/DELL/flutter/SafeSpeak/android/app/.cxx/Debug/5g5f3v73/x86/CMakeFiles/edit_cache.dir
-C:/Users/DELL/flutter/SafeSpeak/android/app/.cxx/Debug/5g5f3v73/x86/CMakeFiles/rebuild_cache.dir
+C:/Users/DELL/flutter/login/android/app/.cxx/Debug/5g5f3v73/x86/CMakeFiles/edit_cache.dir
+C:/Users/DELL/flutter/login/android/app/.cxx/Debug/5g5f3v73/x86/CMakeFiles/rebuild_cache.dir
